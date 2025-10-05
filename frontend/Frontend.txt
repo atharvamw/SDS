@@ -1,0 +1,10 @@
+The public website should provide visitors with comprehensive information about the society
+
+and its activities:
+● Home Page → Welcome page
+● About Page → Information about SDS goals and vision
+● Active Members → Profiles of current club members
+● Project Showcase → Display of selected projects with details
+● Past Events → Summary of completed events with images displayed
+● Contact Page
+● Request a Project → Submit project requests for SDS consideration

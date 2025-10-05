@@ -1,0 +1,16 @@
+Backend Apis
+Authentication
+
+Admin portal :
+● Login Page → Authentication for admin access
+● Members Management → Add, edit, or delete members
+● Projects Management → Manage projects with add, edit, delete and change visibility
+● Events Management → Create, edit, or remove events
+● Reports Section → Upload or generate project reports
+● File Manager → Upload and manage images/documents for website content (for
+example, past events page)
+
+Faculty advisor
+● Login Page → Secure access for faculty advisor
+● Reports Dashboard → View list of uploaded reports
+● Download Reports → Download selected project reports
