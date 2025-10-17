@@ -16,37 +16,8 @@ export function AuthProvider(props)
     }, [userAuth]);
 
     async function login (user, pass)
-<<<<<<< Updated upstream
-    {
-        const result = await fetch("http://localhost:5000/login", {
-            credentials: "include",
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: user,
-                password: pass,
-            })
-        })
-    
-        console.log(user, pass)
-
-        const data = await result.json()
-
-        console.log(data)
-        
-        if(data.status=="success")
-        {   
-            setUserAuth({"user": data.username})
-            setLoggedIn(true)
-            return true
-        }
-        else
-=======
     { 
         try
->>>>>>> Stashed changes
         {
             const result = await fetch("https://api.sdsclub.pp.ua/login", {
                 credentials: "include",
