@@ -17,7 +17,7 @@ export function AuthProvider(props)
 
     async function login (user, pass)
     {
-        const result = await fetch("http://localhost:5000/login", {
+        const result = await fetch("https://api.sdsclub.pp.ua/login", {
             credentials: "include",
             method: 'Post',
             headers: {
