@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from "./pages/Home.jsx"
@@ -6,9 +6,15 @@ import About from "./pages/About.jsx"
 import Contact from "./pages/Contact.jsx"
 import Members from "./pages/Members.jsx"
 import Navbar from './components/Navbar.jsx'
+import { AuthContext } from './context/Auth.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const Auth = useContext(AuthContext);
+  
+  useEffect(()=>{
+    Auth.login("abc");
+  }, [])
 
   return (
     <Router>

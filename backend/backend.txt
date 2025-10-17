@@ -14,3 +14,15 @@ Faculty advisor
 ● Login Page → Secure access for faculty advisor
 ● Reports Dashboard → View list of uploaded reports
 ● Download Reports → Download selected project reports
+
+
+
+MongoDB Schema
+
+Collection Name: User (users)
+
+{
+    username: String
+    email: String (optional)
+    ...
+}
