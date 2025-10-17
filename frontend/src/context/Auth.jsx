@@ -16,6 +16,7 @@ export function AuthProvider(props)
     }, [userAuth]);
 
     async function login (user, pass)
+<<<<<<< Updated upstream
     {
         const result = await fetch("http://localhost:5000/login", {
             credentials: "include",
@@ -42,13 +43,45 @@ export function AuthProvider(props)
             return true
         }
         else
+=======
+    { 
+        try
+>>>>>>> Stashed changes
         {
-            return false
+            const result = await fetch("https://api.sdsclub.pp.ua/login", {
+                credentials: "include",
+                method: 'Post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: user,
+                    password: pass,
+                })
+            })
+
+            const data = await result.json()
+
+            if(data.status=="success")
+            {   
+                setUserAuth({"user": data.username})
+                setLoggedIn(true)
+                return true
+            }
+            else
+            {
+                return false
+            }
         }
+        catch(error)
+        {
+            console.log(error)
+        }
+    
         
     }
 
-    function logout()
+    async function logout()
     {
         if(loggedIn === "false" && userAuth == null)
         {
@@ -56,6 +89,14 @@ export function AuthProvider(props)
         }
         else
         {
+
+            await fetch("https://api.sdsclub.pp.ua/logout", {
+                method: "post",
+                credentials: "include",
+                headers: null,
+                body: null
+            })
+
             setUserAuth({"user": null})
             setLoggedIn(false)
             return true

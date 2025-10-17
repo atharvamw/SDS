@@ -15,7 +15,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://sdsclub.pp.ua',
     methods: ['GET', 'POST', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -35,7 +35,7 @@ app.post("/login",async (req,res)=>{
             res.cookie("token", token, {
                 httpOnly: true,
                 maxAge: 1000 * 60 * 60 * 24 * 30,
-                secure: false,
+                secure: true,
                 sameSite: 'strict'
             })
 
@@ -72,7 +72,7 @@ app.post("/logout", async (req, res)=>{
             httpOnly: true,
             expires: new Date(0),
             samesite: "strict",
-            secure: false
+            secure: true
         })
     
         res.json({"status": "Successfully Logged Out!"})
