@@ -9,7 +9,8 @@ export default function Home(props)
     return (
 
         <>  
-            <h1 style={{backgroundColor: 'red'}}>Welcome {Auth.userAuth!=null && Auth.userAuth.user!=null ? Auth.userAuth.user : null} Home Page</h1>
+            <h1 style={{backgroundColor: 'red'}}>Welcome {Auth.userAuth.user!=null ? Auth.userAuth.user : null} Home Page</h1>
+            
         </>
 
     )

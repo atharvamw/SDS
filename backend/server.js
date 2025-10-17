@@ -3,9 +3,11 @@ import dotenv from "dotenv"
 import {connectDB, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
+import cookieParser from "cookie-parser"
 
 const app = express();
 app.use(express.json())
+app.use(cookieParser())
 dotenv.config();
 
 app.get("/",(req,res)=>{
@@ -15,10 +17,11 @@ app.get("/",(req,res)=>{
 app.use(cors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   }));
 
-app.post("/authUser",async (req,res)=>{
+app.post("/login",async (req,res)=>{
 
     const data = req.body;
     console.log(req.body)
@@ -27,7 +30,7 @@ app.post("/authUser",async (req,res)=>{
         const status = await findUser(data.username);
 
         if (status) {
-            const token = jwt.sign({"user": data.username}, "@secret-key", {expiresIn:"30d"})
+            const token = jwt.sign({"user": data.username}, process.env.JWT_SECRET, {expiresIn:"30d"})
 
             res.cookie("token", token, {
                 httpOnly: true,
@@ -36,7 +39,7 @@ app.post("/authUser",async (req,res)=>{
                 sameSite: 'strict'
             })
 
-            res.json({status: "success"});
+            res.json({status: "success", username: data.username, password: data.password});
         } else {
             res.json({status: "error"});
         }
@@ -45,6 +48,37 @@ app.post("/authUser",async (req,res)=>{
         res.status(500).json({ "error": "Internal Server Error" });
     }
     
+})
+
+app.get("/auth", async (req,res)=>{
+
+    const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+
+    if(user)
+        res.json({"authentication": "success", "user": user});
+    else
+        res.json({"authentication": "failed"});
+})
+
+app.post("/logout", async (req, res)=>{
+
+    if(!req.cookies.token)
+    {
+        res.json({"status": "Already Logged Out!"})
+    }
+    else
+    {
+        res.cookie("token", "", {
+            httpOnly: true,
+            expires: new Date(0),
+            samesite: "strict",
+            secure: false
+        })
+    
+        res.json({"status": "Successfully Logged Out!"})
+    }
+
+
 })
 
 app.listen(5000, ()=>{

@@ -1,34 +1,51 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react"
 
 export const AuthContext = createContext(null)
 
 export function AuthProvider(props)
 {
-    const [userAuth, setUserAuth] = useState(null)
+    const [userAuth, setUserAuth] = useState({"user": null})
     const [loggedIn, setLoggedIn] = useState(false)
 
-    const login = async (user) => {
-        const result = await fetch("http://localhost:5000/authUser", {
-            credentials: "include"
+    useEffect(() => {
+        console.log("loggedIn updated:", loggedIn);
+    }, [loggedIn]);
+
+    useEffect(() => {
+        console.log("userAuth updated:", userAuth);
+    }, [userAuth]);
+
+    async function login (user, pass)
+    {
+        const result = await fetch("http://localhost:5000/login", {
+            credentials: "include",
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 username: user,
+                password: pass,
             })
         })
-
-    const data = await result.json();
     
-    if(data.user && !data.error)
-    {
-        setUserAuth({"user": data.user})
-        setLoggedIn(true)
-        return true
-    }
-    else
-        return false
+        console.log(user, pass)
+
+        const data = await result.json()
+
+        console.log(data)
+        
+        if(data.status=="success")
+        {   
+            setUserAuth({"user": data.username})
+            setLoggedIn(true)
+            return true
+        }
+        else
+        {
+            return false
+        }
+        
     }
 
     function logout()
@@ -39,13 +56,14 @@ export function AuthProvider(props)
         }
         else
         {
-            setUserAuth(null)
+            setUserAuth({"user": null})
             setLoggedIn(false)
             return true
         }
     }
+    
 
-    return(<AuthContext.Provider value={{userAuth, loggedIn, login}}>
+    return(<AuthContext.Provider value={{userAuth, loggedIn, login, logout}}>
 
     {props.children}
 
