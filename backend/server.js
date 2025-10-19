@@ -1,10 +1,12 @@
 import express from 'express'
 import dotenv from "dotenv"
+// require('dotenv').config();
 import {connectDB, createUser, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
 import bcrypt from 'bcrypt'
+
 
 const app = express()
 app.use(express.json())
@@ -140,7 +142,12 @@ app.post("/register", async (req, res)=>{
     
 })
 
+// app.listen(5000, ()=>{
+//     console.log("Server Started at http://localhost:5000");
+//     connectDB(process.env.MONGO_URI);
+// })
+
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
-    connectDB(process.env.MONGO_URI);
+    connectDB(process.env.MONGO_URI_PROJECT);
 })
