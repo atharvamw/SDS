@@ -58,10 +58,9 @@ app.post("/login",async (req,res)=>{
     const data = req.body;
 
     try {
-        
         const hashedPassword = await findUser(data.username);
 
-        if (hashedPassword && bcrypt.compare(data.password, hashedPassword)) {
+        if (hashedPassword && await bcrypt.compare(data.password, hashedPassword)) {
 
             const token = jwt.sign({"user": data.username}, process.env.JWT_SECRET, {expiresIn:"30d"})
 
