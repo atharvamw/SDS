@@ -84,7 +84,4 @@ export const createUser = async(username, password) =>
             return {status: "error", message: err.toString()}
         }
     }
-
-    
-
 }
