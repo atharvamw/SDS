@@ -2,15 +2,35 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     username: String, 
-    email: String
+    password: String
 })
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("adminUser", userSchema);
 
 export const findUser = async(targetUser) =>{
     try
     {
         const user = await User.findOne({username: targetUser})
+
+        if(user)
+        {
+            return user.password
+        }
+        else
+        {
+            return null
+        }
+    }
+    catch(e)
+    {
+        console.error(e);
+    }
+}
+
+export const checkUserandPassword = async(targetUser, targetPassword) =>{
+    try
+    {
+        const user = await User.findOne({username: targetUser, password: targetPassword})
 
         if(user)
         {
