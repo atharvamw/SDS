@@ -56,10 +56,9 @@ app.post("/login",async (req,res)=>{
     const data = req.body;
 
     try {
-        
         const hashedPassword = await findUser(data.username);
 
-        if (hashedPassword && bcrypt.compare(data.password, hashedPassword)) {
+        if (hashedPassword && await bcrypt.compare(data.password, hashedPassword)) {
 
             const token = jwt.sign({"user": data.username}, process.env.JWT_SECRET, {expiresIn:"30d"})
 
@@ -142,5 +141,5 @@ app.post("/register", async (req, res)=>{
 
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
-    connectDB(process.env.MONGO_URI);
+    connectDB(process.env.MONGO_URI_PROJECT);
 })
