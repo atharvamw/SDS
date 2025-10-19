@@ -7,6 +7,20 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("adminUser", userSchema);
 
+export const connectDB = async (uri) =>
+{
+    try
+    {
+        const database = await mongoose.connect(uri);
+        console.log("Database Started: " + database.connection.host);
+    }
+    catch(error)
+    {
+        console.error("Database Error: " + error.message);
+        process.exit(1);
+    }
+}
+
 export const findUser = async(targetUser) =>{
     try
     {
@@ -47,16 +61,30 @@ export const checkUserandPassword = async(targetUser, targetPassword) =>{
     }
 }
 
-export const connectDB = async (uri) =>
+export const createUser = async(username, password) =>
 {
-    try
+    const user = await User.findOne({username: username})
+
+    if(user)
     {
-        const database = await mongoose.connect(uri);
-        console.log("Database Started: " + database.connection.host);
+        return {status: "error", message: "User Already Exists!"}
     }
-    catch(error)
-    {
-        console.error("Database Error: " + error.message);
-        process.exit(1);
+    else{
+        try
+        {
+            await User.create({
+                username: username,
+                password: password
+            })
+
+            return {status: "success", message: "Admin User Created!"}
+        }
+        catch(err)
+        {
+            return {status: "error", message: err.toString()}
+        }
     }
+
+    
+
 }
