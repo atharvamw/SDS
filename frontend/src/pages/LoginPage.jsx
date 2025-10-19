@@ -31,8 +31,8 @@ export default function LoginPage(props)
     }
 
     return (
-        <form action={handleLogin} className="flex flex-col items-center">  
-            <h1 className=" text-center">Login Page</h1>
+        <form action={handleLogin} className="flex flex-col items-center my-10">  
+            <h1 className="text-center mb-10">Admin Login</h1>
             <input type="text" name="username" className="text-xl m-5 p-2 bg-blue-200 text-black rounded-xl w-100" placeholder="Username"/>
             <input type="password" name="password" className="text-xl m-5 p-2 bg-blue-200 text-black rounded-xl w-100" placeholder="Password"/>
             <button type="submit" className="text-2xl bg-blue-700 rounded-xl m-3 p-2 cursor-pointer w-100">Login</button>

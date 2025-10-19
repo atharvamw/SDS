@@ -1,15 +1,22 @@
 import express from 'express'
 import dotenv from "dotenv"
-import {checkUserandPassword, connectDB, findUser} from "./config/db.js"
+import {connectDB, createUser, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
 import bcrypt from 'bcrypt'
 
-const app = express();
+const app = express()
 app.use(express.json())
 app.use(cookieParser())
 dotenv.config();
+
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ error: "Invalid JSON payload" });
+    }
+    next();
+});
 
 const saltRounds = 10;
 
@@ -22,9 +29,21 @@ if (process.env.NODE_ENV === 'development')
     app.use(cors({ origin: true, credentials: true }));
 }
 else
-{
+{   
     app.use(cors({
-        origin: 'https://sdsclub.pp.ua',
+
+        origin: (origin, callback)=>{
+
+            if(process.env.ALLOWED_ORIGINS.includes(origin))
+            {
+                callback(null, true)
+            }
+            else
+            {
+                callback(new Error("Request From this Origin is not allowed"))
+            }
+        },
+
         methods: ['GET', 'POST', 'OPTIONS'],
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
@@ -32,16 +51,11 @@ else
 }
   
 
-
-
 app.post("/login",async (req,res)=>{
 
     const data = req.body;
-    console.log(req.body)
 
     try {
-        
-        //const hashedPassword = await bcrypt.hash(data.password, saltRounds)
         
         const hashedPassword = await findUser(data.username);
 
@@ -83,9 +97,6 @@ app.get("/auth", async (req,res)=>{
         res.json({"authentication": "please login first"});
     }
 
-    
-
-
 })
 
 app.post("/logout", async (req, res)=>{
@@ -106,7 +117,27 @@ app.post("/logout", async (req, res)=>{
         res.json({"status": "Successfully Logged Out!"})
     }
 
+})
 
+app.post("/register", async (req, res)=>{
+
+    const data = req.body
+
+    if(!data.username || !data.password || data.adminReferCode !== process.env.ADMIN_REFER_CODE)
+    {
+        res.json({
+            status: "failed",
+            message: `Please Enter: ${!data.username? "Username, " : ""}${!data.password? "Password, " : ""}${data.adminReferCode !== process.env.ADMIN_REFER_CODE? "Valid Admin_Refer_Code" : ""}`
+        })
+    }
+    else
+    {
+        const hashedPassword = await bcrypt.hash(data.password, saltRounds)
+
+        const status = await createUser(data.username, hashedPassword)
+        res.json(status)
+    }
+    
 })
 
 app.listen(5000, ()=>{
