@@ -47,9 +47,7 @@ export function AuthProvider(props)
         catch(error)
         {
             console.log(error)
-        }
-    
-        
+        } 
     }
 
     async function logout()

@@ -1,25 +1,38 @@
 import express from 'express'
 import dotenv from "dotenv"
-import {connectDB, findUser} from "./config/db.js"
+import {checkUserandPassword, connectDB, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
+import bcrypt from 'bcrypt'
 
 const app = express();
 app.use(express.json())
 app.use(cookieParser())
 dotenv.config();
 
+const saltRounds = 10;
+
 app.get("/",(req,res)=>{
     res.send("<h1 style='color:red'>Thanks for Visiting! </h1>")
 })
 
-app.use(cors({
-    origin: 'https://sdsclub.pp.ua',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }));
+if (process.env.NODE_ENV === 'development') 
+{
+    app.use(cors({ origin: true, credentials: true }));
+}
+else
+{
+    app.use(cors({
+        origin: 'https://sdsclub.pp.ua',
+        methods: ['GET', 'POST', 'OPTIONS'],
+        credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    }));
+}
+  
+
+
 
 app.post("/login",async (req,res)=>{
 
@@ -27,9 +40,13 @@ app.post("/login",async (req,res)=>{
     console.log(req.body)
 
     try {
-        const status = await findUser(data.username);
+        
+        //const hashedPassword = await bcrypt.hash(data.password, saltRounds)
+        
+        const hashedPassword = await findUser(data.username);
 
-        if (status) {
+        if (hashedPassword && bcrypt.compare(data.password, hashedPassword)) {
+
             const token = jwt.sign({"user": data.username}, process.env.JWT_SECRET, {expiresIn:"30d"})
 
             res.cookie("token", token, {
@@ -38,10 +55,10 @@ app.post("/login",async (req,res)=>{
                 secure: true,
                 sameSite: 'strict'
             })
-
-            res.json({status: "success", username: data.username, password: data.password});
+            
+            res.json({status: "success", username: data.username});
         } else {
-            res.json({status: "error"});
+            res.json({status: "failed", username: data.username, message: "Invalid Credentials"});
         }
     } catch (error) {
         console.log(error)
@@ -52,12 +69,23 @@ app.post("/login",async (req,res)=>{
 
 app.get("/auth", async (req,res)=>{
 
-    const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    if(req.cookies.token)
+    {
+        const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
 
-    if(user)
-        res.json({"authentication": "success", "user": user});
+        if(user)
+            res.json({"authentication": "success", "user": user});
+        else
+            res.json({"authentication": "failed"});
+    }
     else
-        res.json({"authentication": "failed"});
+    {
+        res.json({"authentication": "please login first"});
+    }
+
+    
+
+
 })
 
 app.post("/logout", async (req, res)=>{
