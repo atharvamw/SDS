@@ -1,0 +1,32 @@
+[
+  {
+    "title": "R&D Project",
+    "desc": "An Android application to collect and manage research & development related data by Dean R&D.",
+    "img": "/images/rd-project.jpg"
+  },
+  {
+    "title": "Pass Distribution for Gathering",
+    "desc": "A web app for generating online passes for events of Gathering 2022 — users get a QR code + unique number, which is verified at the entrance.",
+    "img": "/images/pass-distribution.jpg"
+  },
+  {
+    "title": "Construction App",
+    "desc": "An internal project for creating site-projects related to construction activities, able to track all site-work activities (plus maintenance).",
+    "img": "/images/construction-app.jpg"
+  },
+  {
+    "title": "Ph.D. Admission Portal",
+    "desc": "A web application to make PhD admissions easier for COEP: multi-stage form, status tracking, and fee-verification by sections/coordinators.",
+    "img": "/images/phd-portal.jpg"
+  },
+  {
+    "title": "Election Portal",
+    "desc": "Dynamic web app to conduct online elections for Gymkhana & General Secretary of COEP with 2-factor authentication and real-time results.",
+    "img": "/images/election-portal.jpg"
+  },
+  {
+    "title": "CirQuip",
+    "desc": "An Android app — a social platform for students to share, chat, and buy/sell used study material inside the college.",
+    "img": "/images/cirquip.jpg"
+  }
+]

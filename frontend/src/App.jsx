@@ -7,6 +7,9 @@ import Contact from "./pages/Contact.jsx"
 import Members from "./pages/Members.jsx"
 import LoginPage from "./pages/LoginPage.jsx"
 import Navbar from './components/Navbar.jsx'
+import Footer from './components/Footer.jsx'
+import RequestProject from './pages/RequestProject.jsx'
+import Projects from './pages/Projects.jsx'
 import { AuthContext } from './context/Auth.jsx'
 
 function App() {
@@ -29,13 +32,12 @@ function App() {
           <Route path="/contact" element={<Contact/>}/>
           <Route path="/members" element={<Members/>}/>
           <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/projects" element={<Projects/>}/>
+          <Route path="/request-project" element={<RequestProject/>}/>
         </Routes>
         
 
-        <footer className='text-black bg-gray-400 mt-3 flex flex-col items-center'>
-          <p>© 2024 SDS, COEP. All Rights Reserved. Designed by SDS</p>
-          <p>Made with ❤️ in COEP</p>
-        </footer>
+        <Footer/>
     </Router>
   )
 }
