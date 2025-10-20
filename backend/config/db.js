@@ -7,6 +7,15 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("adminUser", userSchema);
 
+const projectSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    category: String,
+    image: String
+})
+
+const Project = mongoose.model("Sds Pr")
+
 let isConnected = false;
 
 export const connectDB = async (uri) =>

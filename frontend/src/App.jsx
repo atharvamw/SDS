@@ -9,8 +9,10 @@ import LoginPage from "./pages/LoginPage.jsx"
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import RequestProject from './pages/RequestProject.jsx'
+import Dashboard from './pages/Dashboard.jsx'
 import Projects from './pages/Projects.jsx'
 import { AuthContext } from './context/Auth.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
 
@@ -34,6 +36,15 @@ function App() {
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/projects" element={<Projects/>}/>
           <Route path="/request-project" element={<RequestProject/>}/>
+          
+          <Route path = "/dashboard" element={
+              <ProtectedRoute>
+                 <Dashboard/>
+              </ProtectedRoute>
+          }
+          />
+
+          
         </Routes>
         
 
