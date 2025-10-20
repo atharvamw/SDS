@@ -1,10 +1,12 @@
 
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../context/Auth"
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage(props)
 {   
     const Auth = useContext(AuthContext);
+    const navigate = useNavigate();
 
     async function handleLogin(formData)
     {   
@@ -12,22 +14,14 @@ export default function LoginPage(props)
         const username = formData.get("username");
         const password = formData.get("password");
 
-        if(Auth.userAuth.user == null)
+        if(Auth.userAuth.user === null)
         {
-            await Auth.login(username,password);
+            const result = await Auth.login(username,password);
+            navigate("/home")
         }
         else
             console.log("Already Logged In!")
-    }
-
-    async function handleLogout(event)
-    {
-        if(Auth.userAuth.user != null)
-        {
-            await Auth.logout();
-        }
-        else
-            console.log("Already Logged Out!")
+            navigate("/home")
     }
 
     return (
@@ -36,7 +30,7 @@ export default function LoginPage(props)
             <input type="text" name="username" className="text-xl m-5 p-2 bg-blue-200 text-black rounded-xl w-100" placeholder="Username"/>
             <input type="password" name="password" className="text-xl m-5 p-2 bg-blue-200 text-black rounded-xl w-100" placeholder="Password"/>
             <button type="submit" className="text-2xl bg-blue-700 rounded-xl m-3 p-2 cursor-pointer w-100">Login</button>
-            {Auth.userAuth.username != null ? <button type="button" className="text-2xl bg-blue-700 rounded-xl m-3 p-2 cursor-pointer w-100" onClick={handleLogout}>Log Out</button>: null}
+            {Auth.userAuth.user!=null ? <p className="bg-green-500 rounded-xl p-2 m-4 text-center text-shadow-lg">Logged in sucessfully!</p> : null}
         </form>
 
     )

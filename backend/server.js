@@ -95,9 +95,8 @@ app.get("/auth", async (req,res)=>{
     }
     else
     {
-        res.json({"authentication": "please login first"});
+        res.json({"authentication": "failed", "message":"please login first"});
     }
-
 })
 
 app.post("/logout", async (req, res)=>{

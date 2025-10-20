@@ -1,8 +1,26 @@
 import { Link } from "react-router-dom"
 import sdsLogo from "../assets/sds.png"
+import { AuthContext } from "../context/Auth"
 import "../styles/Navbar.css"
+import { useContext, useEffect } from "react"
 export default function Navbar()
 {
+    const Auth = useContext(AuthContext)
+
+    useEffect(()=>{
+        Auth.authenticate()
+    }, [])
+
+    async function handleLogout(event)
+    {
+        if(Auth.userAuth != null)
+        {
+            const res = await Auth.logout()
+        }
+        else
+            console.log("Already Logged Out!")
+    }
+
     return(
         <nav className="navbar shadow-md sticky top-0 z-50 rounded-sm mb-5">
             <div className="max-w-7xl mx-auto px-6 py-1 flex justify-between items-center" >
