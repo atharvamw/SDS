@@ -51,7 +51,27 @@ else
         allowedHeaders: ['Content-Type', 'Authorization'],
     }));
 }
-  
+
+app.get("/getProjects", async (req, res) => {
+    try {
+        // Ensure the correct DB is connected (using the project URI as in your listen block)
+        await connectDB(process.env.MONGO_URI_PROJECT); 
+        
+        // Fetch all projects using the function from db.js
+        const projects = await getAllProjects();
+
+        // Send the data to the client
+        res.status(200).json({ 
+            status: "success",
+            projects: projects 
+        });
+
+    } catch (error) {
+        console.error('Error in /get route:', error);
+        // Fallback for internal server errors
+        res.status(500).json({ status: "error", message: "Failed to retrieve projects." });
+    }
+});
 
 app.post("/login",async (req,res)=>{
     await connectDB(process.env.MONGO_URI);
