@@ -15,7 +15,6 @@ export default function Navbar()
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/contact">Contact Us</Link></li>
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/members">Members</Link></li>
                     <li><Link to="/projects">Projects</Link></li>
-                    <li><Link to="/events">Events</Link></li>
                     <li className="text-center cursor-pointer hover:text-yellow-200 bg-blue-700 text-shadow-lg rounded-2xl px-3 py-2 mx-3"><Link to="/login">Admin Login</Link></li>
                     <li className="cursor-pointer hover:text-yellow-200 bg-blue-700 text-shadow-lg rounded-2xl px-3 py-2 mx-3" ><Link to="/request-project">Request Project</Link></li>
                 </ul>
