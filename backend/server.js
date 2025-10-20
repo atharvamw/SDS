@@ -93,9 +93,8 @@ app.get("/auth", async (req,res)=>{
     }
     else
     {
-        res.json({"authentication": "please login first"});
+        res.json({"authentication": "failed", "message":"please login first"});
     }
-
 })
 
 app.post("/logout", async (req, res)=>{
@@ -141,5 +140,5 @@ app.post("/register", async (req, res)=>{
 
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
-    connectDB(process.env.MONGO_URI_PROJECT);
+    connectDB(process.env.MONGO_URI);
 })

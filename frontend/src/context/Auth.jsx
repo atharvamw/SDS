@@ -5,11 +5,6 @@ export const AuthContext = createContext(null)
 export function AuthProvider(props)
 {
     const [userAuth, setUserAuth] = useState({"user": null})
-    const [loggedIn, setLoggedIn] = useState(false)
-
-    useEffect(() => {
-        console.log("loggedIn updated:", loggedIn);
-    }, [loggedIn]);
 
     useEffect(() => {
         console.log("userAuth updated:", userAuth);
@@ -36,7 +31,6 @@ export function AuthProvider(props)
             if(data.status=="success")
             {   
                 setUserAuth({"user": data.username})
-                setLoggedIn(true)
                 return true
             }
             else
@@ -52,28 +46,42 @@ export function AuthProvider(props)
 
     async function logout()
     {
-        if(loggedIn === "false" && userAuth == null)
+        await fetch("https://api.sdsclub.pp.ua/logout", {
+            method: "post",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        setUserAuth({"user": null})
+        return true
+    }
+
+    async function authenticate()
+    {
+        const result = await fetch("https://api.sdsclub.pp.ua/auth",{
+            method: "get",
+            credentials: "include"
+        })
+        const data = await result.json()
+
+        if(data.authentication === "success")
         {
+            console.log(data)
+            setUserAuth(data.user)
             return true
         }
         else
         {
-
-            await fetch("https://api.sdsclub.pp.ua/logout", {
-                method: "post",
-                credentials: "include",
-                headers: null,
-                body: null
-            })
-
+            console.log(data)
             setUserAuth({"user": null})
-            setLoggedIn(false)
-            return true
+            return false
         }
     }
     
 
-    return(<AuthContext.Provider value={{userAuth, loggedIn, login, logout}}>
+    return(<AuthContext.Provider value={{userAuth, setUserAuth, login, logout, authenticate}}>
 
     {props.children}
 
