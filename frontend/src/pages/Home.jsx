@@ -63,11 +63,6 @@ const Home = () => {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center space-y-8">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full">
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-purple-300">Officially Approved by COEP Gymkhana</span>
-            </div>
-
             <h1 className="text-5xl md:text-7xl font-bold">
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
                 Software Development
