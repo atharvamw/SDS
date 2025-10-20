@@ -7,8 +7,11 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("adminUser", userSchema);
 
+let isConnected = false;
+
 export const connectDB = async (uri) =>
-{
+{   
+    if (isConnected) return;
     try
     {
         const database = await mongoose.connect(uri);
