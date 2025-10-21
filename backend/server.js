@@ -1,6 +1,5 @@
 import express from 'express'
 import dotenv from "dotenv"
-// require('dotenv').config();
 import {connectDB, createUser, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
@@ -12,6 +11,8 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 dotenv.config();
+await connectDB(process.env.MONGO_URI)
+
 
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
@@ -74,7 +75,6 @@ app.get("/getProjects", async (req, res) => {
 });
 
 app.post("/login",async (req,res)=>{
-    await connectDB(process.env.MONGO_URI);
     const data = req.body;
 
     try {
@@ -103,7 +103,6 @@ app.post("/login",async (req,res)=>{
 })
 
 app.get("/auth", async (req,res)=>{
-    await connectDB(process.env.MONGO_URI);
     if(req.cookies.token)
     {
         const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
@@ -140,7 +139,6 @@ app.post("/logout", async (req, res)=>{
 })
 
 app.post("/register", async (req, res)=>{
-    await connectDB(process.env.MONGO_URI);
     const data = req.body
 
     if(!data.username || !data.password || data.adminReferCode !== process.env.ADMIN_REFER_CODE)
@@ -160,12 +158,6 @@ app.post("/register", async (req, res)=>{
     
 })
 
-// app.listen(5000, ()=>{
-//     console.log("Server Started at http://localhost:5000");
-//     connectDB(process.env.MONGO_URI);
-// })
-
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
-    connectDB(process.env.MONGO_URI_PROJECT);
 })
