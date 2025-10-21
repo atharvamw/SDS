@@ -1,28 +1,43 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
+import dotenv from "dotenv"
+
+dotenv.config();
+
+export const connectDB = async (uri) =>
+{   
+        try
+        {
+            const connection = await mongoose.createConnection(uri)
+            connection.on('connected', () => {
+                console.log("Database Connected: " + connection.db.databaseName);
+            });
+            return connection
+        }
+        catch(error)
+        {
+            console.error("Database Error: " + error.message);
+            process.exit(1);
+        }
+}
+    
+const userDB = await connectDB(process.env.MONGO_URI);
+const projectDB = await connectDB(process.env.MONGO_URI_PROJECT);
 
 const userSchema = new mongoose.Schema({
     username: String, 
     password: String
 })
 
-const User = mongoose.model("adminUser", userSchema);
+const projectSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    category: { type: String },
+    image: { type: String }
+});
 
-let isConnected = false;
+const User = userDB.model("adminUser", userSchema);
+const Project = projectDB.model("Project", projectSchema);
 
-export const connectDB = async (uri) =>
-{   
-    if (isConnected) return;
-    try
-    {
-        const database = await mongoose.connect(uri);
-        console.log("Database Started: " + database.connection.host);
-    }
-    catch(error)
-    {
-        console.error("Database Error: " + error.message);
-        process.exit(1);
-    }
-}
 
 export const findUser = async(targetUser) =>{
     try
