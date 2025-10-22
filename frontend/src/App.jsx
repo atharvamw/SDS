@@ -17,12 +17,16 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 function App() {
 
   const Auth = useContext(AuthContext);
+  const [projects, setProjects] = useState([])
 
   useEffect(()=>{
-
+    (async ()=>{
+      const response = await fetch("https://api.sdsclub.pp.ua/getProjects")
+      const projectData = await response.json() 
       
-
-  }, [])
+      setProjects(projectData.result)
+    })();
+  }, []);
 
   return (
     <Router>
@@ -34,7 +38,7 @@ function App() {
           <Route path="/contact" element={<Contact/>}/>
           <Route path="/members" element={<Members/>}/>
           <Route path="/login" element={<LoginPage/>}/>
-          <Route path="/projects" element={<Projects/>}/>
+          <Route path="/projects" element={<Projects projects={projects}/>}/>
           <Route path="/request-project" element={<RequestProject/>}/>
           
           <Route path = "/dashboard" element={
