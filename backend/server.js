@@ -1,11 +1,10 @@
 import express from 'express'
 import dotenv from "dotenv"
-import {createUser, getProjects, addProject, findUser} from "./config/db.js"
+import {createUser, getProjects, addProject, findUser, getAllTeam} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
 import bcrypt from 'bcrypt'
-
 
 const app = express()
 app.use(express.json())
@@ -170,6 +169,22 @@ app.get("/getProjects", async (req,res)=>{
         res.json({"staus": "error", "message": error})
     }
 })
+
+
+app.get("/getTeam", async (req, res) => {
+  try {
+    await connectDB(process.env.MONGO_URI_PROJECT);
+    const team = await getAllTeam();
+
+    res.status(200).json({
+      status: "success",
+      team: team
+    });
+  } catch (error) {
+    console.error("Error in /getTeam route:", error);
+    res.status(500).json({ status: "error", message: "Failed to retrieve team data." });
+  }
+});
 
 app.post("/addProject", async (req,res)=>{
 
