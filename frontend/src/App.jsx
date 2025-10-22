@@ -11,6 +11,7 @@ import Footer from './components/Footer.jsx'
 import RequestProject from './pages/RequestProject.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Projects from './pages/Projects.jsx'
+import Events from './pages/Events.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import { AuthContext } from './context/Auth.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -53,6 +54,7 @@ function App() {
           <Route path="/home" element={<Home/>}/>
           <Route path="/about" element={<About/>}/>
           <Route path="/contact" element={<Contact/>}/>
+          <Route path="/events" element={<Events/>}/>
           <Route path="/team" element={<Team team={team}/>}/>
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/projects" element={<Projects projects={projects}/>}/>
