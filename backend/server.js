@@ -55,7 +55,7 @@ app.get("/getProjects", async (req, res) => {
         // Ensure the correct DB is connected (using the project URI as in your listen block
         
         // Fetch all projects using the function from db.js
-        const projects = await getAllProjects();
+        const projects = await getProjects();
 
         // Send the data to the client
         res.status(200).json({ 
