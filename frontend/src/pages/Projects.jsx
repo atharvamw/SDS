@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Code2, ExternalLink, Sparkles } from "lucide-react";
 
-export default function Projects() {
-  const [projects, setProjects] = useState([])
-
-  useEffect(()=>{
-    (async ()=>{
-      const response = await fetch("https://api.sdsclub.pp.ua/getProjects")
-      const projectData = await response.json() 
-      
-      setProjects(projectData.result)
-      console.log(projectData.result)
-    })();
-  }, []);
+export default function Projects({projects}) {
 
   return (
     <div className="min-h-screen bg-slate-900">
