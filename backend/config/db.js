@@ -35,8 +35,14 @@ const projectSchema = new mongoose.Schema({
     image: { type: String }
 });
 
+const teamSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  designation: { type: String, required: true }
+});
+
 const User = userDB.model("adminUser", userSchema);
 const Project = projectDB.model("Sd", projectSchema);
+const Team = mongoose.model("Team", teamSchema);
 
 
 export const findUser = async(targetUser) =>{
@@ -149,3 +155,15 @@ export async function addProject(projectObj)
         console.error(err)
     }
 }
+
+
+// Fetch all team members
+export const getTeam = async () => {
+  try {
+    const members = await Team.find({});
+    return members;
+  } catch (e) {
+    console.error("Error fetching team data: " + e.message);
+    return [];
+  }
+};
