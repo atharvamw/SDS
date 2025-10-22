@@ -1,8 +1,8 @@
-
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../context/Auth"
 import { useNavigate } from "react-router-dom";
-import { Lock, User, Sparkles } from "lucide-react";
+import { Lock, User, Sparkles, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function LoginPage(props)
 {   
@@ -115,6 +115,20 @@ export default function LoginPage(props)
                                 </p>
                             </div>
                         )}
+
+                        {/* Registration Link */}
+                        <div className="mt-6 pt-6 border-t border-purple-500/20 text-center">
+                            <p className="text-gray-400 text-sm mb-3">
+                                New admin? Request access to the dashboard
+                            </p>
+                            <Link
+                                to="/register"
+                                className="inline-flex items-center space-x-2 text-purple-400 hover:text-purple-300 transition-colors text-sm font-medium"
+                            >
+                                <UserPlus className="w-4 h-4" />
+                                <span>Register as Admin</span>
+                            </Link>
+                        </div>
                     </form>
                 </div>
 
