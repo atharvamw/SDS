@@ -15,16 +15,32 @@ import { AuthContext } from './context/Auth.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
-
   const Auth = useContext(AuthContext);
-  const [projects, setProjects] = useState([])
 
-  useEffect(()=>{
-    (async ()=>{
-      const response = await fetch("https://api.sdsclub.pp.ua/getProjects")
-      const projectData = await response.json() 
-      
-      setProjects(projectData.result)
+  const [projects, setProjects] = useState([]);
+  const [team, setTeam] = useState([]);
+
+  useEffect(() => {
+    // Fetch projects
+    (async () => {
+      try {
+        const response = await fetch("https://api.sdsclub.pp.ua/getProjects");
+        const projectData = await response.json();
+        setProjects(projectData.projects || []);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    })();
+
+    // Fetch team
+    (async () => {
+      try {
+        const response = await fetch("https://api.sdsclub.pp.ua/getTeam");
+        const teamData = await response.json();
+        setTeam(teamData.team || []);
+      } catch (error) {
+        console.error("Error fetching team:", error);
+      }
     })();
   }, []);
 
@@ -36,7 +52,7 @@ function App() {
           <Route path="/home" element={<Home/>}/>
           <Route path="/about" element={<About/>}/>
           <Route path="/contact" element={<Contact/>}/>
-          <Route path="/team" element={<Team team={[{name: "ABC"}]}/>}/>
+          <Route path="/team" element={<Team team={team}/>}/>
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/projects" element={<Projects projects={projects}/>}/>
           <Route path="/request-project" element={<RequestProject/>}/>
@@ -48,11 +64,21 @@ function App() {
           }
           />
 
-          
-        </Routes>
-        
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/projects" element={<Projects projects={projects} />} />
+        <Route path="/request-project" element={<RequestProject />} />
 
-        <Footer/>
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+
+      <Footer />
     </Router>
   )
 }

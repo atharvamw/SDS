@@ -11,8 +11,6 @@ app.use(express.json())
 app.use(cookieParser())
 dotenv.config();
 
-
-
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         return res.status(400).json({ error: "Invalid JSON payload" });
@@ -54,11 +52,10 @@ else
 
 app.get("/getProjects", async (req, res) => {
     try {
-        // Ensure the correct DB is connected (using the project URI as in your listen block)
-        await connectDB(process.env.MONGO_URI_PROJECT); 
+        // Ensure the correct DB is connected (using the project URI as in your listen block
         
         // Fetch all projects using the function from db.js
-        const projects = await getAllProjects();
+        const projects = await getProjects();
 
         // Send the data to the client
         res.status(200).json({ 
@@ -173,7 +170,6 @@ app.get("/getProjects", async (req,res)=>{
 
 app.get("/getTeam", async (req, res) => {
   try {
-    await connectDB(process.env.MONGO_URI_PROJECT);
     const team = await getAllTeam();
 
     res.status(200).json({
