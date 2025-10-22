@@ -52,8 +52,7 @@ else
 
 app.get("/getProjects", async (req, res) => {
     try {
-        // Ensure the correct DB is connected (using the project URI as in your listen block)
-        await connectDB(process.env.MONGO_URI_PROJECT); 
+        // Ensure the correct DB is connected (using the project URI as in your listen block
         
         // Fetch all projects using the function from db.js
         const projects = await getAllProjects();
