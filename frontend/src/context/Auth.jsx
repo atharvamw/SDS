@@ -79,9 +79,39 @@ export function AuthProvider(props)
             return false
         }
     }
+
+    async function register(user, pass, adminCode)
+    {
+        try
+        {
+            const result = await fetch("https://api.sdsclub.pp.ua/register", {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: user,
+                    password: pass,
+                    adminReferCode: adminCode
+                })
+            })
+
+            const data = await result.json()
+            if(result.status==="success")
+                return data
+            else
+                return data
+            
+        }
+        catch(err)
+        {
+            return {"status": "failed", "message": err.toString()}
+        }
+    }
     
 
-    return(<AuthContext.Provider value={{userAuth, setUserAuth, login, logout, authenticate}}>
+    return(<AuthContext.Provider value={{userAuth, setUserAuth, login, logout, authenticate, register}}>
 
     {props.children}
 

@@ -11,6 +11,7 @@ import Footer from './components/Footer.jsx'
 import RequestProject from './pages/RequestProject.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Projects from './pages/Projects.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
 import { AuthContext } from './context/Auth.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
@@ -46,29 +47,24 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-
-        {/* ✅ Team route with dynamic data */}
-        <Route path="/team" element={<Team team={team} />} />
-
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/projects" element={<Projects projects={projects} />} />
-        <Route path="/request-project" element={<RequestProject />} />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+        <Navbar/>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/home" element={<Home/>}/>
+          <Route path="/about" element={<About/>}/>
+          <Route path="/contact" element={<Contact/>}/>
+          <Route path="/team" element={<Team team={team}/>}/>
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/projects" element={<Projects projects={projects}/>}/>
+          <Route path="/request-project" element={<RequestProject/>}/>
+          
+          <Route path = "/dashboard" element={
+              <ProtectedRoute>
+                 <Dashboard/>
+              </ProtectedRoute>
           }
-        />
+          />
+          <Route path="/register" element={<RegisterPage />} />
       </Routes>
 
       <Footer />
