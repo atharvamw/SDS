@@ -30,7 +30,7 @@ export default function Navbar() {
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/home">Home</Link></li>
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/about">About Us</Link></li>
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/contact">Contact Us</Link></li>
-                    <li className="cursor-pointer hover:text-blue-200"><Link to="/members">Members</Link></li>
+                    <li className="cursor-pointer hover:text-blue-200"><Link to="/team">Team</Link></li>
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/projects">Projects</Link></li>
                     <li className="cursor-pointer hover:text-blue-200"><Link to="/events">Events</Link></li>
                     <li className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-purple-500/50 flex items-center px-3 py-2 text-sm sm:text-base whitespace-nowrap">
