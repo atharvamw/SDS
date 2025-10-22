@@ -36,7 +36,7 @@ const projectSchema = new mongoose.Schema({
 });
 
 const User = userDB.model("adminUser", userSchema);
-const Project = projectDB.model("Project", projectSchema);
+const Project = projectDB.model("Sd", projectSchema);
 
 
 export const findUser = async(targetUser) =>{
@@ -101,5 +101,51 @@ export const createUser = async(username, password) =>
         {
             return {status: "error", message: err.toString()}
         }
+    }
+}
+
+export const getProjects = async()=>{
+
+    try
+    {
+        const resultData = Project.find({});
+        return resultData
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+export async function addProject(projectObj)
+{
+    try
+    {
+        if(projectObj.title && projectObj.description)
+        {
+            if(Project.findOne({title: projectObj.title}))
+            {
+                return {"status": "failed", "message": "Project Title Already Exists"}
+            }
+            else
+            {
+                const newProj = await Project.create({
+                    title: projectObj.title,
+                    description: projectObj.description,
+                    category: projectObj.category,
+                    image: projectObj.image
+                })
+                console.log(newProj)
+                return {"status": "success"}
+            }
+        }
+        else
+        {
+            return {"status": "failed", "message": "Please Enter all required fields"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
     }
 }
