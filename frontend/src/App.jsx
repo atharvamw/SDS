@@ -46,16 +46,23 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-
-        {/* ✅ Team route with dynamic data */}
-        <Route path="/team" element={<Team team={team} />} />
+        <Navbar/>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/home" element={<Home/>}/>
+          <Route path="/about" element={<About/>}/>
+          <Route path="/contact" element={<Contact/>}/>
+          <Route path="/team" element={<Team team={team}/>}/>
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/projects" element={<Projects projects={projects}/>}/>
+          <Route path="/request-project" element={<RequestProject/>}/>
+          
+          <Route path = "/dashboard" element={
+              <ProtectedRoute>
+                 <Dashboard/>
+              </ProtectedRoute>
+          }
+          />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/projects" element={<Projects projects={projects} />} />

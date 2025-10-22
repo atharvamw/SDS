@@ -38,11 +38,11 @@ const projectSchema = new mongoose.Schema({
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true },
   designation: { type: String, required: true }
-});
+}, { collection: 'team' });
 
 const User = userDB.model("adminUser", userSchema);
 const Project = projectDB.model("Sd", projectSchema);
-const Team = mongoose.model("Team", teamSchema);
+const Team = projectDB.model("Team", teamSchema);
 
 
 export const findUser = async(targetUser) =>{
@@ -158,7 +158,7 @@ export async function addProject(projectObj)
 
 
 // Fetch all team members
-export const getTeam = async () => {
+export const getAllTeam = async () => {
   try {
     const members = await Team.find({});
     return members;
