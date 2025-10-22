@@ -1,6 +1,6 @@
 import express from 'express'
 import dotenv from "dotenv"
-import {createUser, findUser} from "./config/db.js"
+import {createUser, getProjects, addProject, findUser} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
@@ -136,6 +136,37 @@ app.post("/register", async (req, res)=>{
         res.json(status)
     }
     
+})
+
+app.get("/getProjects", async (req,res)=>{
+
+    try
+    {   
+        const result = await getProjects();
+        res.json({"staus": "success", result})
+    }
+    catch(error)
+    {
+        res.json({"staus": "error", "message": error})
+    }
+})
+
+app.post("/addProject", async (req,res)=>{
+
+    if(req.cookies.token)
+    {
+        const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    
+        if(user)
+        {
+            const result = await addProject(req.body)
+            res.json(result);
+        }    
+        else
+            res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
+    }
+    else
+        res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
 })
 
 app.listen(5000, ()=>{
