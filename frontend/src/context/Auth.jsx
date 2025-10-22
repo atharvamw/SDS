@@ -84,7 +84,7 @@ export function AuthProvider(props)
     {
         try
         {
-            const result = await fetch("http://api.sdsclub.pp.ua/register", {
+            const result = await fetch("https://api.sdsclub.pp.ua/register", {
                 method: "post",
                 credentials: "include",
                 headers: {
@@ -97,15 +97,17 @@ export function AuthProvider(props)
                 })
             })
 
-            return {"status": "success", "message": result}
+            const data = await result.json()
+            if(result.status==="success")
+                return data
+            else
+                return data
+            
         }
         catch(err)
         {
             return {"status": "failed", "message": err.toString()}
         }
-
-
-        console.log("Registration Data:", result)
     }
     
 

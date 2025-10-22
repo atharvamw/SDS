@@ -37,7 +37,7 @@ export default function RegisterPage() {
         {
             setSuccess(true);
             setTimeout(() => {
-                navigate("/home");
+                navigate("/login");
             }, 1000);
         }
         else
