@@ -1,11 +1,14 @@
 import express from 'express'
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import {connectDB, createUser, getProjects, addProject, findUser, getAllTeam, ProjectRequest} from "./config/db.js"
+
+import userRouter from './routes/user.js'
+import projectRouter from './routes/project.js'
+import teamRouter from './routes/team.js'
+import projectReqRouter from './routes/projectRequest.js'
+
 import cors from 'cors'
-import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
-import bcrypt from 'bcrypt'
 
 const app = express()
 app.use(express.json())
@@ -18,8 +21,6 @@ app.use((err, req, res, next) => {
     }
     next();
 });
-
-const saltRounds = 10;
 
 app.get("/",(req,res)=>{
     res.send("<h1 style='color:red'>Thanks for Visiting! </h1>")
@@ -51,155 +52,11 @@ else
     }));
 }
 
-app.get("/getProjects", async (req, res) => {
-    try {
-        // Ensure the correct DB is connected (using the project URI as in your listen block
-        
-        // Fetch all projects using the function from db.js
-        const projects = await getProjects();
+app.use(userRouter)
+app.use(projectRouter)
+app.use(teamRouter)
+app.use(projectReqRouter)
 
-        // Send the data to the client
-        res.status(200).json({ 
-            status: "success",
-            projects: projects 
-        });
-
-    } catch (error) {
-        console.error('Error in /get route:', error);
-        // Fallback for internal server errors
-        res.status(500).json({ status: "error", message: "Failed to retrieve projects." });
-    }
-});
-
-app.post("/login",async (req,res)=>{
-    const data = req.body;
-
-    try {
-        const hashedPassword = await findUser(data.username);
-
-        if (hashedPassword && await bcrypt.compare(data.password, hashedPassword)) {
-
-            const token = jwt.sign({"user": data.username}, process.env.JWT_SECRET, {expiresIn:"30d"})
-
-            res.cookie("token", token, {
-                httpOnly: true,
-                maxAge: 1000 * 60 * 60 * 24 * 30,
-                secure: true,
-                sameSite: 'strict'
-            })
-            
-            res.json({status: "success", username: data.username});
-        } else {
-            res.json({status: "failed", username: data.username, message: "Invalid Credentials"});
-        }
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ "error": "Internal Server Error" });
-    }
-    
-})
-
-app.get("/auth", async (req,res)=>{
-    if(req.cookies.token)
-    {
-        const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
-
-        if(user)
-            res.json({"authentication": "success", "user": user});
-        else
-            res.json({"authentication": "failed"});
-    }
-    else
-    {
-        res.json({"authentication": "failed", "message":"please login first"});
-    }
-})
-
-app.post("/logout", async (req, res)=>{
-
-    if(!req.cookies.token)
-    {
-        res.json({"status": "Already Logged Out!"})
-    }
-    else
-    {
-        res.cookie("token", "", {
-            httpOnly: true,
-            expires: new Date(0),
-            samesite: "strict",
-            secure: true
-        })
-    
-        res.json({"status": "Successfully Logged Out!"})
-    }
-
-})
-
-app.post("/register", async (req, res)=>{
-    const data = req.body
-
-    if(!data.username || !data.password || data.adminReferCode !== process.env.ADMIN_REFER_CODE)
-    {
-        res.json({
-            status: "failed",
-            message: `Please Enter: ${!data.username? "Username, " : ""}${!data.password? "Password, " : ""}${data.adminReferCode !== process.env.ADMIN_REFER_CODE? "Valid Admin_Refer_Code" : ""}`
-        })
-    }
-    else
-    {
-        const hashedPassword = await bcrypt.hash(data.password, saltRounds)
-
-        const status = await createUser(data.username, hashedPassword)
-        res.json(status)
-    }
-    
-})
-
-app.get("/getProjects", async (req,res)=>{
-
-    try
-    {   
-        const result = await getProjects();
-        res.json({"staus": "success", result})
-    }
-    catch(error)
-    {
-        res.json({"staus": "error", "message": error})
-    }
-})
-
-
-app.get("/getTeam", async (req, res) => {
-  try {
-    const team = await getAllTeam();
-
-    res.status(200).json({
-      status: "success",
-      team: team
-    });
-  } catch (error) {
-    console.error("Error in /getTeam route:", error);
-    res.status(500).json({ status: "error", message: "Failed to retrieve team data." });
-  }
-});
-
-app.post("/addProject", async (req,res)=>{
-
-    if(req.cookies.token)
-    {
-        const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
-    
-        if(user)
-        {
-            const result = await addProject(req.body)
-            res.json(result);
-        }    
-        else
-            res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
-    }
-    else
-        res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
-})
 
 // Handle new project request
 app.post("/requestProject", async (req, res) => {
