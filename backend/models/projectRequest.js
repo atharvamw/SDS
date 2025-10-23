@@ -18,8 +18,26 @@ const ProjectRequest = mongoose.createConnection(process.env.MONGO_URI_PROJECT).
 export const createProjectRequest = async (name,email,title,description) => 
 {
   try {
+
+    if(await ProjectRequest.exists({title: title}))
+    {
+      return { status: "failed", message: "Project Title Already Exists!"}
+    }
+
+    const count = await ProjectRequest.countDocuments({
+      $or: [
+        { name: name },
+        { email: email }
+      ]
+    })
+
+    if(count > 2)
+    {
+      return { status: "failed", message: "You Already have 3 Existing Projects!"}
+    }
+
     const newReq = await ProjectRequest.create({ name, email, title, description });
-    return { status: "success", message: "Request saved successfully", data: newReq };
+    return { status: "success", message: "Request Submitted Successfully! Please Wait For Approval.", data: newReq };
   } 
   catch (error) 
   {
@@ -80,5 +98,25 @@ export async function approveProjectRequest(id)
     catch(err)
     {
       return {status: "failed", message: "Invalid Project Id, Could'nt Approve It", error: err}
+    }
+}
+
+export async function deleteProjectRequest(id)
+{
+    try
+    {
+        if(id && (await ProjectRequest.findByIdAndDelete(id))?.id === id)
+        {
+            return {status: "success", "message": "Deleted the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Delete Your Project!"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
     }
 }

@@ -65,7 +65,7 @@ export async function deleteProject(id)
 {
     try
     {
-        if(id && (await Project.findByIdAndDelete(id)).id == id)
+        if(id && (await Project.findByIdAndDelete(id))?.id == id)
         {
             return {status: "success", "message": "Deleted the Project!"}
         }
