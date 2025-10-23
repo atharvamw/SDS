@@ -7,10 +7,13 @@ export const projectSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: { type: String },
-    image: { type: String }
+    image: { type: String },
+    email: { type: String },
+    name: {type: String},
+    date: {type: Date}
 });
 
-const Project = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Sd", projectSchema);
+export const Project = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Sd", projectSchema);
 
 export const getProjects = async()=>{
 
@@ -49,6 +52,26 @@ export async function addProject(projectObj)
         else
         {
             return {"status": "failed", "message": "Please Enter all required fields"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
+    }
+}
+
+export async function deleteProject(id)
+{
+    try
+    {
+        if(id && (await Project.findByIdAndDelete(id)).id == id)
+        {
+            return {status: "success", "message": "Deleted the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Delete Your Project!"}
         }
 
     }
