@@ -15,7 +15,7 @@ export default function Dashboard() {
     const projectData = await projectRes.json()
     setProjects(projectData.projects)
 
-    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequest")
+    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests")
     const projectRequestData = await projectRequestRes.json()
     setProjects(projectRequestData.data)
   }, [])
