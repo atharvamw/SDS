@@ -22,6 +22,7 @@ export const connectDB = async (uri) =>
     
 const userDB = await connectDB(process.env.MONGO_URI);
 const projectDB = await connectDB(process.env.MONGO_URI_PROJECT);
+const requestDB = await connectDB(process.env.MONGO_URI_PROJECT);
 
 const userSchema = new mongoose.Schema({
     username: String, 
@@ -40,9 +41,18 @@ const teamSchema = new mongoose.Schema({
   designation: { type: String, required: true }
 }, { collection: 'team' });
 
+const projectRequestSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  title: String,
+  description: String,
+  date: { type: Date, default: Date.now }
+});
+
 const User = userDB.model("adminUser", userSchema);
 const Project = projectDB.model("Sd", projectSchema);
 const Team = projectDB.model("Team", teamSchema);
+export const ProjectRequest = mongoose.model("project_request", projectRequestSchema);
 
 
 export const findUser = async(targetUser) =>{
@@ -165,5 +175,15 @@ export const getAllTeam = async () => {
   } catch (e) {
     console.error("Error fetching team data: " + e.message);
     return [];
+  }
+};
+
+export const createProjectRequest = async (data) => {
+  try {
+    const newReq = await Request.create(data);
+    return { status: "success", message: "Request saved successfully", data: newReq };
+  } catch (error) {
+    console.error("Error saving project request:", error);
+    return { status: "error", message: "Failed to save project request" };
   }
 };

@@ -1,6 +1,6 @@
 import express from 'express'
 import dotenv from "dotenv"
-import {createUser, getProjects, addProject, findUser, getAllTeam} from "./config/db.js"
+import {connectDB, createUser, getProjects, addProject, findUser, getAllTeam, createProjectRequest} from "./config/db.js"
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
@@ -199,6 +199,25 @@ app.post("/addProject", async (req,res)=>{
     else
         res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
 })
+
+app.post("/requestProject", async (req, res) => {
+  try {
+    await connectDB(process.env.MONGO_URI_PROJECT);
+    const { name, email, title, description } = req.body;
+
+    if (!name || !email || !title || !description) {
+      return res.status(400).json({ status: "failed", message: "All fields are required" });
+    }
+
+    const newRequest = new ProjectRequest({ name, email, title, description });
+    await newRequest.save();
+
+    res.status(201).json({ status: "success", message: "Request saved successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
 
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
