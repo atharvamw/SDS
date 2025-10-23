@@ -9,6 +9,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 import sdsSession from "../assets/session.png"
+import Bg from "../components/Background";
+
 const About = () => {
   const values = [
     {
@@ -58,6 +60,9 @@ const About = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-16">
+      <div className="absolute inset-0 -z-10 w-full h-full">
+        <Bg />
+      </div>
       {/* Hero Section */}
       <section className="px-4 sm:px-6 lg:px-8 mb-20">
         <div className="max-w-7xl mx-auto">

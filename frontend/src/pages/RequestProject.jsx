@@ -69,9 +69,9 @@ export default function RequestProject() {
           required
         ></textarea>
         <button
-          type="submit"
-          className="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800"
-        >
+                            type="submit"
+                            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        >
           Submit Request
         </button>
       </form>

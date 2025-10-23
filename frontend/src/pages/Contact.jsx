@@ -22,35 +22,6 @@ export default function Contact() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {/* Contact Info Cards */}
-          <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 text-center hover:border-purple-500/40 transition-all">
-            <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="text-white font-semibold mb-2">Email</h3>
-            <a href="mailto:sds@coep.ac.in" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
-              sds@coep.ac.in
-            </a>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 text-center hover:border-purple-500/40 transition-all">
-            <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
-              <Phone className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="text-white font-semibold mb-2">Phone</h3>
-            <p className="text-gray-400 text-sm">+91 1234567890</p>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 text-center hover:border-purple-500/40 transition-all">
-            <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="text-white font-semibold mb-2">Location</h3>
-            <p className="text-gray-400 text-sm">COEP Tech, Pune</p>
-          </div>
-        </div>
-
         {/* Contact Form */}
         <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-2xl p-8 md:p-12">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Send us a Message</h2>
