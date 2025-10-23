@@ -23,10 +23,8 @@ export async function intializeTeam(uri)
         console.log(err)
     }
 }
-    
 
-const Team = await intializeTeam(process.env.MONGO_URI_PROJECT)
-
+const Team = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Team", teamSchema);
 
 export const getAllTeam = async () => {
     try {

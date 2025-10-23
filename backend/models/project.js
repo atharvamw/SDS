@@ -10,21 +10,7 @@ export const projectSchema = new mongoose.Schema({
     image: { type: String }
 });
 
-export async function intializeProject(uri)
-{
-    try
-    {
-        const connection = await mongoose.createConnection(uri)
-        const Project = connection.model("Sd", projectSchema);
-        return Project
-    }
-    catch(err)
-    {
-        console.log(err)
-    }
-}
-
-const Project = await intializeProject(process.env.MONGO_URI_PROJECT)
+const Project = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Sd", projectSchema);
 
 export const getProjects = async()=>{
 

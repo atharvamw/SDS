@@ -8,21 +8,7 @@ export const userSchema = new mongoose.Schema({
     password: String
 })
 
-export async function intializeUser(uri)
-{
-    try
-    {
-        const connection = await mongoose.createConnection(uri)
-        const User = connection.model("adminUser", userSchema);
-        return User
-    }
-    catch(err)
-    {
-        console.log(err)
-    }
-}
-
-const User = await intializeUser(process.env.MONGO_URI)
+const User = mongoose.createConnection(process.env.MONGO_URI).model("adminUser", userSchema);
 
 export const findUser = async(targetUser) =>{
     try

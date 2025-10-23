@@ -12,21 +12,7 @@ export const projectRequestSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
   });
 
-export async function intializeProjectRequest(uri)
-{
-    try
-    {
-        const connection = await mongoose.createConnection(uri)
-        const ProjectRequest = connection.model("project_requests", projectRequestSchema);
-        return ProjectRequest
-    }
-    catch(err)
-    {
-        console.log(err)
-    }
-}
-
-const ProjectRequest = await intializeProjectRequest(process.env.MONGO_URI_PROJECT)
+const ProjectRequest = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("project_requests", projectRequestSchema);
 
 export const createProjectRequest = async (name,email,title,description) => 
 {
