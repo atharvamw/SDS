@@ -1,25 +1,39 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users, FolderKanban, FileCheck, Menu, X, Plus, Edit, Trash2, Check, XCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("members");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  useEffect(async ()=>{
+    const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam")
+    const teamData = await teamRes.json()
+    setMembers(teamData.team)
+
+    const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects")
+    const projectData = await projectRes.json()
+    setProjects(projectData.projects)
+
+    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequest")
+    const projectRequestData = await projectRequestRes.json()
+    setProjects(projectRequestData.data)
+  }, [])
+
   // Sample data - replace with actual API calls
   const [members, setMembers] = useState([
-    { id: 1, name: "John Doe", role: "President", year: "Final Year", branch: "Computer" },
-    { id: 2, name: "Jane Smith", role: "Vice President", year: "Third Year", branch: "IT" },
+    { _id: 1, name: "John Doe", role: "President", year: "Final Year", branch: "Computer" },
+    { _id: 2, name: "Jane Smith", role: "Vice President", year: "Third Year", branch: "IT" },
   ]);
 
   const [projects, setProjects] = useState([
-    { id: 1, title: "Campus Portal", status: "Active", tech: "MERN Stack" },
-    { id: 2, title: "Event Management", status: "Completed", tech: "React, Firebase" },
+    { _id: 1, title: "Campus Portal", status: "Active", tech: "MERN Stack" },
+    { _id: 2, title: "Event Management", status: "Completed", tech: "React, Firebase" },
   ]);
 
   const [projectRequests, setProjectRequests] = useState([
-    { id: 1, requester: "Prof. Sharma", title: "Library Management System", description: "Need a system to manage library books and student records", status: "pending" },
-    { id: 2, requester: "Dr. Patel", title: "Attendance Tracker", description: "Automated attendance system with QR codes", status: "pending" },
+    { _id: 1, name: "Prof. Sharma", title: "Library Management System", description: "Need a system to manage library books and student records", status: "pending" },
+    { _id: 2, name: "Dr. Patel", title: "Attendance Tracker", description: "Automated attendance system with QR codes", status: "pending" },
   ]);
 
   const sidebarItems = [
@@ -95,7 +109,7 @@ export default function Dashboard() {
               <div className="grid gap-4">
                 {members.map((member) => (
                   <div
-                    key={member.id}
+                    key={member._id}
                     className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between">
@@ -134,7 +148,7 @@ export default function Dashboard() {
               <div className="grid gap-4">
                 {projects.map((project) => (
                   <div
-                    key={project.id}
+                    key={project._id}
                     className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between">
@@ -174,7 +188,7 @@ export default function Dashboard() {
               <div className="grid gap-4">
                 {projectRequests.map((request) => (
                   <div
-                    key={request.id}
+                    key={request._id}
                     className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -185,7 +199,7 @@ export default function Dashboard() {
                             Pending
                           </span>
                         </div>
-                        <p className="text-sm text-gray-400 mb-2">Requested by: {request.requester}</p>
+                        <p className="text-sm text-gray-400 mb-2">Requested by: {request.name}</p>
                         <p className="text-gray-300">{request.description}</p>
                       </div>
                     </div>

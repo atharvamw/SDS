@@ -19,7 +19,7 @@ router.post("/requestProject", async (req, res) => {
     }
   });
 
-  router.get("/getProjectRequest", async (req, res) => {
+  router.get("/getProjectRequests", async (req, res) => {
 
     try{
       if(req.cookies.token && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
