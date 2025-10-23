@@ -240,7 +240,6 @@ export default function TalksTimeline() {
             </div>
           </section>
 
-          <Footer />
         </div>
       </Bg>
     </>

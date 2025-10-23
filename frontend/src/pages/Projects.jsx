@@ -113,7 +113,7 @@ export default function Projects({ projects }) {
           </div>
           {/* --- End of Projects Content --- */}
 
-          <Footer />
+  
         </div>
       </Bg>
     </>

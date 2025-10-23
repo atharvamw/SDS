@@ -103,7 +103,6 @@ export default function Team({ team }) {
             </div>
           </section>
 
-          <Footer />
         </div>
       </Bg>
     </>
