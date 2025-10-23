@@ -58,25 +58,6 @@ app.use(teamRouter)
 app.use(projectReqRouter)
 
 
-// Handle new project request
-app.post("/requestProject", async (req, res) => {
-  try {
-    await connectDB(process.env.MONGO_URI_PROJECT);
-    const { name, email, title, description } = req.body;
-
-    if (!name || !email || !title || !description)
-      return res.status(400).json({ status: "failed", message: "All fields required" });
-
-    const newReq = await ProjectRequest.create({ name, email, title, description });
-
-    res.status(201).json({ status: "success", message: "Request submitted successfully", data: newReq });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ status: "error", message: "Server error" });
-  }
-});
-
-
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
 })
