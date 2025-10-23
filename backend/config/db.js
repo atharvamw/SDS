@@ -41,19 +41,20 @@ const teamSchema = new mongoose.Schema({
   designation: { type: String, required: true }
 }, { collection: 'team' });
 
+// Project request schema
 const projectRequestSchema = new mongoose.Schema({
   name: String,
   email: String,
   title: String,
   description: String,
-  date: { type: Date, default: Date.now }
+  status: { type: String, default: "pending" },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const User = userDB.model("adminUser", userSchema);
 const Project = projectDB.model("Sd", projectSchema);
 const Team = projectDB.model("Team", teamSchema);
-export const ProjectRequest = mongoose.model("project_request", projectRequestSchema);
-
+export const ProjectRequest = mongoose.model("project_requests", projectRequestSchema);
 
 export const findUser = async(targetUser) =>{
     try
