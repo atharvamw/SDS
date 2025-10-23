@@ -1,5 +1,5 @@
 import express from 'express'
-import {getProjects, addProject} from "../models/project.js"
+import {getProjects, addProject, deleteProject} from "../models/project.js"
 import jwt from 'jsonwebtoken'
 
 const router = express.Router()
@@ -38,6 +38,17 @@ router.post("/addProject", async (req,res)=>{
         else
             res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
     }
+    else
+        res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
+})
+
+router.post("/deleteProject", async (req,res)=>{
+
+    if(req.cookies.token && jwt.verify(req.cookies.token,process.env.JWT_SECRET))
+    {
+        const result = await deleteProject(req.body.id)
+        res.json(result);
+    }    
     else
         res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
 })
