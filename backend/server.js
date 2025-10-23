@@ -1,7 +1,10 @@
 import express from 'express'
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import {connectDB, createUser, getProjects, addProject, findUser, getAllTeam, ProjectRequest} from "./config/db.js"
+import {createUser, findUser} from "./models/user.js"
+import {getProjects, addProject} from "./models/project.js"
+import {createProjectRequest} from "./models/projectRequest.js"
+import { getAllTeam } from './models/team.js'
 import cors from 'cors'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
@@ -204,15 +207,14 @@ app.post("/addProject", async (req,res)=>{
 // Handle new project request
 app.post("/requestProject", async (req, res) => {
   try {
-    await connectDB(process.env.MONGO_URI_PROJECT);
     const { name, email, title, description } = req.body;
 
     if (!name || !email || !title || !description)
       return res.status(400).json({ status: "failed", message: "All fields required" });
 
-    const newReq = await ProjectRequest.create({ name, email, title, description });
-
-    res.status(201).json({ status: "success", message: "Request submitted successfully", data: newReq });
+    const result = await createProjectRequest(name,email, title, description)
+    res.status(201).json(result);
+    
   } catch (e) {
     console.error(e);
     res.status(500).json({ status: "error", message: "Server error" });
