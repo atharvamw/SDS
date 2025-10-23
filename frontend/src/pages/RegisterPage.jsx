@@ -82,11 +82,7 @@ export default function RegisterPage() {
                 {/* Registration Card */}
                 <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-2xl p-8 shadow-xl">
                     <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.target);
-                            handleRegister(formData);
-                        }}
+                        action={handleRegister}
                         className="space-y-6"
                     >
                         {/* Username Input */}
