@@ -1,4 +1,8 @@
 import React from "react";
+import { Calendar } from "lucide-react"; // Added for header
+import Bg from "../components/Background";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const talks = [
   {
@@ -24,8 +28,7 @@ const talks = [
   {
     tag: "Online Elections",
     date: "August 2021",
-    title:
-      "Conducted Online Elections for Gymkhana and Gathering Secretary",
+    title: "Conducted Online Elections for Gymkhana and Gathering Secretary",
   },
   {
     tag: "Resume",
@@ -117,47 +120,129 @@ const talks = [
 
 export default function TalksTimeline() {
   return (
-    <div className="min-h-screen bg-gradient-to-br px-4 py-16">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 drop-shadow-lg">
-          Talks and Sessions
-        </h1>
-
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-white/70 to-white/20 rounded-full h-full"></div>
-
-          {/* Timeline items */}
-          {talks.map((item, i) => (
-            <div
-              key={i}
-              className={`relative flex flex-col md:flex-row items-center mb-10 ${
-                i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-              }`}
-            >
-              {/* Marker */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-white border-4 border-indigo-500 rounded-full z-10 transition-transform hover:scale-125"></div>
-
-              {/* Content */}
-              <div
-                className={`bg-white text-gray-800 rounded-xl shadow-lg p-6 w-full md:w-5/12 ${
-                  i % 2 === 0 ? "md:mr-auto md:text-right" : "md:ml-auto"
-                }`}
-              >
-                <div className="inline-block px-3 py-1 text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-3">
-                  {item.tag}
+    <>
+      <Navbar />
+      <Bg>
+        {/* Main wrapper from About.jsx */}
+        <div className="pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
+          {/* Main content section */}
+          <section className="mb-12 sm:mb-16 lg:mb-20">
+            {/* Using max-w-5xl as it's optimal for a timeline layout */}
+            <div className="max-w-5xl mx-auto">
+              {/* --- Re-styled Header (from About.jsx) --- */}
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-4 sm:mb-6">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                  <span className="text-xs sm:text-sm text-purple-300 font-['Rajdhani']">
+                    Our Events
+                  </span>
                 </div>
-                {item.date && (
-                  <div className="text-sm text-gray-500 font-medium mb-1">
-                    {item.date}
+
+                <h1
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 px-4"
+                  style={{ fontFamily: "Orbitron, sans-serif" }}
+                >
+                  <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                    TALKS & SESSIONS
+                  </span>
+                </h1>
+
+                <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4 font-['Rajdhani']">
+                  A timeline of workshops, hackathons, and guest lectures hosted
+                  by SDS.
+                </p>
+              </div>
+              {/* --- End of Header --- */}
+
+              <div className="relative">
+                {/* Vertical Timeline line */}
+                <div className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-purple-500/50 via-teal-500/50 to-cyan-500/50 rounded-full h-full"></div>
+
+                {/* Timeline items */}
+                {talks.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`relative flex flex-col md:flex-row items-center mb-10 ${
+                      i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                    }`}
+                  >
+                    {/* Horizontal Stem */}
+                    <div
+                      className={`hidden md:block absolute w-[calc(50%-2.5rem)] h-[2px] bg-gradient-to-r from-purple-400/50 via-teal-400/50 to-cyan-400/50 z-0 ${
+                        i % 2 === 0 ? "right-[calc(50%+1.25rem)]" : "left-[calc(50%+1.25rem)]"
+                      }`}
+                    ></div>
+
+                    {/* Marker */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-slate-900 border-4 border-purple-400 rounded-full z-10 transition-transform hover:scale-125 hover:border-cyan-400"></div>
+
+                    {/* Content Card */}
+                    <div
+                      className={`bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl shadow-lg p-6 w-full md:w-5/12 transition-all duration-300 hover:border-purple-400/40 hover:shadow-xl hover:shadow-purple-500/30 cursor-pointer ${
+                        i % 2 === 0 ? "md:mr-auto md:text-right" : "md:ml-auto"
+                      }`}
+                    >
+                      {/* Tag */}
+                      <div
+                        className={`inline-block px-3 py-1 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 rounded-full mb-3 font-['Rajdhani'] ${
+                          i % 2 === 0 ? "" : "md:float-right md:clear-both" // Ensures tag aligns correctly on reversed cards
+                        }`}
+                      >
+                        {item.tag}
+                      </div>
+
+                      {/* Date */}
+                      {item.date && (
+                        <div className={`text-sm text-gray-400 font-medium mb-1 font-['Rajdhani'] ${
+                          i % 2 === 0 ? "" : "md:text-right" // Align date to the right for reversed cards
+                        }`}>
+                          {item.date}
+                        </div>
+                      )}
+
+                      {/* Title */}
+                      <div
+                        className={`text-lg font-semibold text-white ${
+                          i % 2 === 0 ? "" : "md:text-right" // Align title to the right for reversed cards
+                        }`}
+                        style={{ fontFamily: "Orbitron, sans-serif" }}
+                      >
+                        {item.title}
+                      </div>
+                    </div>
                   </div>
-                )}
-                <div className="text-lg font-semibold">{item.title}</div>
+                ))}
               </div>
             </div>
-          ))}
+          </section>
+
+          {/* Get in touch / CTA (from About.jsx) */}
+          <section className="mb-12 sm:mb-20">
+            <div className="max-w-7xl mx-auto text-center px-4">
+              <h2
+                className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4"
+                style={{ fontFamily: "Orbitron, sans-serif" }}
+              >
+                <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  GET IN TOUCH
+                </span>
+              </h2>
+              <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg font-['Rajdhani']">
+                Have a Project?
+              </p>
+              <a
+                href="/request-project"
+                className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 hover:from-purple-600 hover:via-teal-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                style={{ fontFamily: "Orbitron, sans-serif" }}
+              >
+                Have a Project? Click Here!
+              </a>
+            </div>
+          </section>
+
+          <Footer />
         </div>
-      </div>
-    </div>
+      </Bg>
+    </>
   );
 }

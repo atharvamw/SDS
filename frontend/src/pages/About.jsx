@@ -227,7 +227,6 @@ const About = () => {
               </a>
             </div>
           </section>
-          <Footer />
         </div>
       </Bg>
     </>
