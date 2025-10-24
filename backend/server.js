@@ -57,7 +57,7 @@ app.use(userRouter)
 app.use(projectRouter)
 app.use(teamRouter)
 app.use(projectReqRouter)
-app.use("/contact", contactRouter)
+app.use("/api", contactRouter)
 
 const PORT = process.env.PORT || 5000;
 

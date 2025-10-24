@@ -1,42 +1,28 @@
 import express from "express";
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { sendMail } from "../utils/sendMail.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-  const { name, email, message } = req.body;
-
-  if (!name || !email || !message)
-    return res.status(400).json({ status: "error", message: "All fields required" });
-
+router.post("/contact", async (req, res) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // change if using another provider
-      auth: {
-        user: process.env.ADMIN_MAIL,
-        pass: process.env.ADMIN_PASS,
-      },
-    });
+    const { name, email, message } = req.body;
 
-    const mailOptions = {
-      from: email,
-      to: process.env.ADMIN_MAIL,
-      subject: `New message from ${name}`,
-      text: `
-        Name: ${name}
-        Email: ${email}
-        Message: ${message}
-      `,
-    };
+    if (!name || !email || !message) {
+      return res.status(400).json({ status: "failed", message: "All fields are required" });
+    }
 
-    await transporter.sendMail(mailOptions);
-    res.json({ status: "success", message: "Mail sent successfully!" });
-  } catch (err) {
-    console.error("Error sending mail:", err);
-    res.status(500).json({ status: "error", message: "Failed to send email" });
+    // Send mail to admin
+    await sendMail(
+      process.env.ADMIN_MAIL,
+      `📩 New Contact Message from ${name}`,
+      "contactForm",
+      { name, email, message }
+    );
+
+    res.status(200).json({ status: "success", message: "Message sent successfully" });
+  } catch (error) {
+    console.error("Error in contact route:", error);
+    res.status(500).json({ status: "error", message: "Failed to send message" });
   }
 });
 
