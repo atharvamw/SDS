@@ -43,33 +43,6 @@ export default function Dashboard() {
     }
   }
 
-  async function handleReject(request) {
-  if (!confirm(`Are you sure you want to reject "${request.title}" by ${request.name}?`)) {
-    return;
-  }
-
-  setRejectingRequests((prev) => ({ ...prev, [request._id]: true }));
-
-  try {
-    const response = await fetch("https://api.sdsclub.pp.ua/rejectProjectRequest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: request._id,
-        name: request.name,
-        email: request.email,
-        title: request.title,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.status === "success") {
-      alert("✅ Project rejected and mail sent successfully!");
-      setProjectRequests((prev) => prev.filter((req) => req._id !== request._id));
-    } else {
-      alert("❌ Failed to reject request: " + (result.message || "Unknown error"));
   async function apiCall(endpoint, body, loadingKey) {
     setLoading((prev) => ({ ...prev, [loadingKey]: true }));
     try {
@@ -91,14 +64,7 @@ export default function Dashboard() {
     } finally {
       setLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
-  } catch (error) {
-    console.error("Error rejecting request:", error);
-    alert("⚠️ Failed to reject request. Please try again.");
-  } finally {
-    setRejectingRequests((prev) => ({ ...prev, [request._id]: false }));
   }
-}
-
 
   // Generic handlers
   const handleEdit = (type, item) => {
@@ -155,11 +121,18 @@ export default function Dashboard() {
     }
   };
 
-  const handleReject = async (id) => {
-    if (!confirm("Are you sure you want to reject this project request?")) return;
-    const success = await apiCall("/deleteProjectRequest", { id }, `reject_${id}`);
+  const handleReject = async (request) => {
+    if (!confirm(`Are you sure you want to reject "${request.title}" by ${request.name}?`)) return;
+    
+    const success = await apiCall("/rejectProjectRequest", { 
+      id: request._id,
+      name: request.name,
+      email: request.email,
+      title: request.title
+    }, `reject_${request._id}`);
+    
     if (success) {
-      setProjectRequests((prev) => prev.filter((req) => req._id !== id));
+      setProjectRequests((prev) => prev.filter((req) => req._id !== request._id));
     }
   };
 
@@ -168,140 +141,6 @@ export default function Dashboard() {
     { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "requests", label: "Project Requests", icon: FileCheck },
   ];
-
-  // ...existing code...
-
-  // Team Member Functions
-  function handleOpenAddMemberModal() {
-    setShowAddMemberModal(true);
-    setAddMemberForm({ name: "", designation: "" });
-  }
-
-  function handleCloseAddMemberModal() {
-    setShowAddMemberModal(false);
-    setAddMemberForm({ name: "", designation: "" });
-  }
-
-  async function handleAddMember(e) {
-    e.preventDefault();
-    setAddingMember(true);
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/addTeamMember", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name: addMemberForm.name,
-          designation: addMemberForm.designation,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Re-fetch team members
-        const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
-          method: "get",
-          credentials: "include",
-        });
-        const teamData = await teamRes.json();
-        setMembers(teamData.team);
-        
-        handleCloseAddMemberModal();
-      } else {
-        alert("Failed to add team member: " + (result.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error adding team member:", error);
-      alert("Failed to add team member. Please try again.");
-    } finally {
-      setAddingMember(false);
-    }
-  }
-
-  function handleEditMember(member) {
-    setEditingMember(member._id);
-    setEditMemberForm({
-      name: member.name,
-      designation: member.designation || "",
-    });
-  }
-
-  function handleCancelEditMember() {
-    setEditingMember(null);
-    setEditMemberForm({ name: "", designation: "" });
-  }
-
-  async function handleSaveMember(memberId) {
-    setSavingMembers((prev) => ({ ...prev, [memberId]: true }));
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/updateTeamMember", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          id: memberId,
-          data: {
-            name: editMemberForm.name,
-            designation: editMemberForm.designation,
-          },
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Update member in state
-        setMembers((prev) =>
-          prev.map((m) =>
-            m._id === memberId ? { ...m, ...editMemberForm } : m
-          )
-        );
-        setEditingMember(null);
-        setEditMemberForm({ name: "", designation: "" });
-      } else {
-        alert("Failed to update team member: " + (result.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error updating team member:", error);
-      alert("Failed to update team member. Please try again.");
-    } finally {
-      setSavingMembers((prev) => ({ ...prev, [memberId]: false }));
-    }
-  }
-
-  async function handleDeleteMember(memberId) {
-    if (!confirm("Are you sure you want to remove this team member?")) {
-      return;
-    }
-
-    setDeletingMembers((prev) => ({ ...prev, [memberId]: true }));
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/removeTeamMember", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: memberId }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Remove member from state
-        setMembers((prev) => prev.filter((m) => m._id !== memberId));
-      } else {
-        alert("Failed to remove team member: " + (result.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error removing team member:", error);
-      alert("Failed to remove team member. Please try again.");
-    } finally {
-      setDeletingMembers((prev) => ({ ...prev, [memberId]: false }));
-    }
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 flex">
@@ -515,10 +354,10 @@ export default function Dashboard() {
                       </button>
                       <button
                         onClick={() => handleReject(request)}
-                        disabled={rejectingRequests[request._id]}
+                        disabled={loading[`reject_${request._id}`]}
                         className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {rejectingRequests[request._id] ? (
+                        {loading[`reject_${request._id}`] ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
                             <span>Rejecting...</span>
