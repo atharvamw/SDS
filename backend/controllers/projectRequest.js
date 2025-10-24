@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { sendMail } from '../utils/sendMail.js'
 import {createProjectRequest, getProjectRequest, approveProjectRequest, deleteProjectRequest} from "../models/projectRequest.js"
 
 export async function handleRequestProject(req, res)
@@ -45,6 +46,7 @@ export async function handleApproveProjectRequest(req, res)
     if(req.cookies.token && req.body.id && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
     {
       const projRequests = await approveProjectRequest(req.body.id)
+      const project = projRequests.data
       if(projRequests.status=="success") {
         // Notify applicant
         await sendMail(
@@ -78,6 +80,7 @@ export async function handleApproveProjectRequest(req, res)
   }
   catch(err)
   {
+    console.log(err)
     res.json({status: "error", message: err})
   }
 
