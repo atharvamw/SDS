@@ -4,6 +4,34 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setStatus("sending");
+
+    try {
+      const res = await fetch("https://api.sdsclub.pp.ua/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (data.status === "success") {
+        setStatus("sent");
+        setForm({ name: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+    }
+  }
+
   return (
     // This structure now perfectly matches About.jsx
     <>

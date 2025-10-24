@@ -7,10 +7,13 @@ export const projectSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     category: { type: String },
-    image: { type: String }
+    image: { type: String },
+    email: { type: String },
+    name: {type: String},
+    date: {type: Date}
 });
 
-const Project = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Sd", projectSchema);
+export const Project = mongoose.createConnection(process.env.MONGO_URI_PROJECT).model("Sd", projectSchema);
 
 export const getProjects = async()=>{
 
@@ -30,7 +33,7 @@ export async function addProject(projectObj)
     {
         if(projectObj.title && projectObj.description)
         {
-            if(Project.findOne({title: projectObj.title}))
+            if(await Project.findOne({title: projectObj.title}))
             {
                 return {"status": "failed", "message": "Project Title Already Exists"}
             }
@@ -49,6 +52,46 @@ export async function addProject(projectObj)
         else
         {
             return {"status": "failed", "message": "Please Enter all required fields"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
+    }
+}
+
+export async function deleteProject(id)
+{
+    try
+    {
+        if(id && (await Project.findByIdAndDelete(id))?.id == id)
+        {
+            return {status: "success", "message": "Deleted the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Delete Your Project!"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
+    }
+}
+
+export async function updateProject(id, data)
+{
+    try
+    {
+        if(id && (await Project.updateOne({ _id: id },{ $set: data }))?.acknowledged)
+        {
+            return {status: "success", "message": "Updated the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Update Your Project!"}
         }
 
     }

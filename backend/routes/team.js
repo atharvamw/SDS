@@ -1,20 +1,11 @@
-import express from 'express'
-import { getAllTeam } from '../models/team.js'
+import express from 'express';
+import { handleGetTeam, handleAddTeamMember, handleRemoveTeamMember, handleUpdateTeamMember } from '../controllers/team.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.get("/getTeam", async (req, res) => {
-    try {
-      const team = await getAllTeam();
-  
-      res.status(200).json({
-        status: "success",
-        team: team
-      });
-    } catch (error) {
-      console.error("Error in /getTeam route:", error);
-      res.status(500).json({ status: "error", message: "Failed to retrieve team data." });
-    }
-  });
+router.get("/getTeam", handleGetTeam);
+router.post("/addTeamMember", handleAddTeamMember);
+router.post("/removeTeamMember", handleRemoveTeamMember);
+router.post("/updateTeamMember", handleUpdateTeamMember);
 
-export default router
+export default router;
