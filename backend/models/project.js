@@ -33,7 +33,7 @@ export async function addProject(projectObj)
     {
         if(projectObj.title && projectObj.description)
         {
-            if(Project.findOne({title: projectObj.title}))
+            if(await Project.findOne({title: projectObj.title}))
             {
                 return {"status": "failed", "message": "Project Title Already Exists"}
             }
@@ -72,6 +72,26 @@ export async function deleteProject(id)
         else
         {
             return {"status": "failed", "message": "Could not Delete Your Project!"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
+    }
+}
+
+export async function updateProject(id, data)
+{
+    try
+    {
+        if(id && (await Project.updateOne({ _id: id },{ $set: data }))?.acknowledged)
+        {
+            return {status: "success", "message": "Updated the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Update Your Project!"}
         }
 
     }

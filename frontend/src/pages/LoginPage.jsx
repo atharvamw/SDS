@@ -9,6 +9,11 @@ export default function LoginPage(props)
     const Auth = useContext(AuthContext);
     const navigate = useNavigate();
 
+    if(Auth.userAuth.user)
+    {
+        navigate("/dashboard")
+    }
+
     async function handleLogin(formData)
     {   
         console.log("Form Data Entries:", Array.from(formData.entries()));
