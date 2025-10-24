@@ -11,6 +11,17 @@ export async function handleRequestProject(req, res)
         return res.status(400).json({ status: "failed", message: "All fields required" });
       
       const result = await createProjectRequest(name,email, title, description)
+
+    if(result.status=="success") 
+    {
+        await sendMail(
+        email,
+        "Your Project Request Has Been Received!",
+        "projectRequestSent",
+        { name: name, title: title }
+      );
+    }
+
       res.status(201).json(result);
   
     } catch (e) {
