@@ -46,6 +46,7 @@ export async function handleApproveProjectRequest(req, res)
     if(req.cookies.token && req.body.id && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
     {
       const projRequests = await approveProjectRequest(req.body.id)
+      const project = projRequests.data
       if(projRequests.status=="success") {
         // Notify applicant
         await sendMail(
