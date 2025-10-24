@@ -1,4 +1,4 @@
-import {getProjects, addProject, deleteProject} from "../models/project.js"
+import {getProjects, addProject, deleteProject, updateProject} from "../models/project.js"
 import jwt from 'jsonwebtoken'
 
 export async function handleGetProjects(req, res) 
@@ -47,4 +47,15 @@ export async function handleDeleteProject(req,res)
     }    
     else
         res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
+}
+
+export async function handleUpdateProject(req,res)
+{
+    if(req.cookies.token && jwt.verify(req.cookies.token,process.env.JWT_SECRET))
+        {
+            const result = await updateProject(req.body.id, req.body.data)
+            res.json(result);
+        }    
+        else
+            res.json({"authentication": "failed", "message": "You must be Logged in as an Admin!"});
 }

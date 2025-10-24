@@ -80,3 +80,23 @@ export async function deleteProject(id)
         console.error(err)
     }
 }
+
+export async function updateProject(id, data)
+{
+    try
+    {
+        if(id && (await Project.updateOne({ _id: id },{ $set: data }))?.acknowledged)
+        {
+            return {status: "success", "message": "Updated the Project!"}
+        }
+        else
+        {
+            return {"status": "failed", "message": "Could not Update Your Project!"}
+        }
+
+    }
+    catch(err)
+    {
+        console.error(err)
+    }
+}
