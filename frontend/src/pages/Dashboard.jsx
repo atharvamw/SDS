@@ -1,108 +1,45 @@
 import { useEffect, useState } from "react";
 import { Users, FolderKanban, FileCheck, Menu, X, Plus, Edit, Trash2, Check, XCircle, Loader2 } from "lucide-react";
 
+const API_BASE = "https://api.sdsclub.pp.ua";
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("members");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [loadingRequests, setLoadingRequests] = useState({});
-  const [editingProject, setEditingProject] = useState(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", tech: "" });
-  const [deletingProjects, setDeletingProjects] = useState({});
-  const [savingProjects, setSavingProjects] = useState({});
-  const [rejectingRequests, setRejectingRequests] = useState({});
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState({ title: "", description: "", category: "", image: "" });
-  const [addingProject, setAddingProject] = useState(false);
   
-  // Team member states
-  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-  const [addMemberForm, setAddMemberForm] = useState({ name: "", designation: "" });
-  const [addingMember, setAddingMember] = useState(false);
-  const [editingMember, setEditingMember] = useState(null);
-  const [editMemberForm, setEditMemberForm] = useState({ name: "", designation: "" });
-  const [savingMembers, setSavingMembers] = useState({});
-  const [deletingMembers, setDeletingMembers] = useState({});
+  // Data states
+  const [members, setMembers] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectRequests, setProjectRequests] = useState([]);
+  
+  // UI states
+  const [loading, setLoading] = useState({});
+  const [editing, setEditing] = useState({ type: null, id: null, form: {} });
+  const [showModal, setShowModal] = useState({ type: null, form: {} });
 
   useEffect(() => {
-    async function fetchData() {
-      const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
-        method: "get",
-        credentials: "include",
-      });
-      const teamData = await teamRes.json();
-      setMembers(teamData.team);
-
-      const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
-        method: "get",
-        credentials: "include",
-      });
-      const projectData = await projectRes.json();
-      setProjects(projectData.projects);
-
-      const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests", {
-        method: "get",
-        credentials: "include",
-      });
-      const projectRequestData = await projectRequestRes.json();
-      setProjectRequests(projectRequestData.data);
-    }
     fetchData();
   }, []);
 
-  // Sample data - replace with actual API calls
-  const [members, setMembers] = useState([
-    { _id: 1, name: "John Doe", role: "President", year: "Final Year", branch: "Computer" },
-    { _id: 2, name: "Jane Smith", role: "Vice President", year: "Third Year", branch: "IT" },
-  ]);
-
-  const [projects, setProjects] = useState([
-    { _id: 1, title: "Campus Portal", status: "Active", tech: "MERN Stack" },
-    { _id: 2, title: "Event Management", status: "Completed", tech: "React, Firebase" },
-  ]);
-
-  const [projectRequests, setProjectRequests] = useState([
-    { _id: 1, name: "Prof. Sharma", title: "Library Management System", description: "Need a system to manage library books and student records", status: "pending" },
-    { _id: 2, name: "Dr. Patel", title: "Attendance Tracker", description: "Automated attendance system with QR codes", status: "pending" },
-  ]);
-
-  const sidebarItems = [
-    { id: "members", label: "Team Members", icon: Users },
-    { id: "projects", label: "Projects", icon: FolderKanban },
-    { id: "requests", label: "Project Requests", icon: FileCheck },
-  ];
-
-  async function handleApprove(requestId) {
-    setLoadingRequests((prev) => ({ ...prev, [requestId]: true }));
-
+  async function fetchData() {
     try {
-      const response = await fetch("https://api.sdsclub.pp.ua/approveProjectRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: requestId }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Remove approved request from state
-        setProjectRequests((prev) => prev.filter((req) => req._id !== requestId));
-        
-        // Re-fetch projects to get the newly approved project
-        const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
-          method: "get",
-          credentials: "include",
-        });
-        const projectData = await projectRes.json();
-        setProjects(projectData.projects);
-      } else {
-        alert("Failed to approve request: " + (result.message || "Unknown error"));
-      }
+      const [teamRes, projectRes, requestRes] = await Promise.all([
+        fetch(`${API_BASE}/getTeam`, { credentials: "include" }),
+        fetch(`${API_BASE}/getProjects`, { credentials: "include" }),
+        fetch(`${API_BASE}/getProjectRequests`, { credentials: "include" }),
+      ]);
+      
+      const [teamData, projectData, requestData] = await Promise.all([
+        teamRes.json(),
+        projectRes.json(),
+        requestRes.json(),
+      ]);
+      
+      setMembers(teamData.team || []);
+      setProjects(projectData.projects || []);
+      setProjectRequests(requestData.data || []);
     } catch (error) {
-      console.error("Error approving request:", error);
-      alert("Failed to approve request. Please try again.");
-    } finally {
-      setLoadingRequests((prev) => ({ ...prev, [requestId]: false }));
+      console.error("Error fetching data:", error);
     }
   }
 
@@ -133,6 +70,26 @@ export default function Dashboard() {
       setProjectRequests((prev) => prev.filter((req) => req._id !== request._id));
     } else {
       alert("❌ Failed to reject request: " + (result.message || "Unknown error"));
+  async function apiCall(endpoint, body, loadingKey) {
+    setLoading((prev) => ({ ...prev, [loadingKey]: true }));
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      const result = await response.json();
+      if (result.status !== "success") {
+        alert(`Failed: ${result.message || "Unknown error"}`);
+      }
+      return result.status === "success";
+    } catch (error) {
+      console.error("API Error:", error);
+      alert("Operation failed. Please try again.");
+      return false;
+    } finally {
+      setLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   } catch (error) {
     console.error("Error rejecting request:", error);
@@ -143,140 +100,76 @@ export default function Dashboard() {
 }
 
 
-  function handleEditProject(project) {
-    setEditingProject(project._id);
-    setEditForm({
-      title: project.title,
-      description: project.description || "",
-      tech: project.tech || "",
-    });
-  }
+  // Generic handlers
+  const handleEdit = (type, item) => {
+    const form = type === "member" 
+      ? { name: item.name, designation: item.designation || "" }
+      : { title: item.title, description: item.description || "", tech: item.tech || "", category: item.category || "", image: item.image || "" };
+    setEditing({ type, id: item._id, form });
+  };
 
-  function handleCancelEdit() {
-    setEditingProject(null);
-    setEditForm({ title: "", description: "", tech: "" });
-  }
+  const handleCancelEdit = () => setEditing({ type: null, id: null, form: {} });
 
-  async function handleSaveProject(projectId) {
-    setSavingProjects((prev) => ({ ...prev, [projectId]: true }));
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/updateProject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          id: projectId,
-          data: {
-            title: editForm.title,
-            description: editForm.description,
-            tech: editForm.tech,
-          },
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Update project in state
-        setProjects((prev) =>
-          prev.map((p) =>
-            p._id === projectId ? { ...p, ...editForm } : p
-          )
-        );
-        setEditingProject(null);
-        setEditForm({ title: "", description: "", tech: "" });
+  const handleSave = async (type, id) => {
+    const endpoint = type === "member" ? "/updateTeamMember" : "/updateProject";
+    const success = await apiCall(endpoint, { id, data: editing.form }, `save_${id}`);
+    if (success) {
+      if (type === "member") {
+        setMembers((prev) => prev.map((m) => (m._id === id ? { ...m, ...editing.form } : m)));
       } else {
-        alert("Failed to update project: " + (result.message || "Unknown error"));
+        setProjects((prev) => prev.map((p) => (p._id === id ? { ...p, ...editing.form } : p)));
       }
-    } catch (error) {
-      console.error("Error updating project:", error);
-      alert("Failed to update project. Please try again.");
-    } finally {
-      setSavingProjects((prev) => ({ ...prev, [projectId]: false }));
+      handleCancelEdit();
     }
-  }
+  };
 
-  async function handleDeleteProject(projectId) {
-    if (!confirm("Are you sure you want to delete this project?")) {
-      return;
-    }
-
-    setDeletingProjects((prev) => ({ ...prev, [projectId]: true }));
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/deleteProject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: projectId }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Remove deleted project from state
-        setProjects((prev) => prev.filter((p) => p._id !== projectId));
+  const handleDelete = async (type, id) => {
+    if (!confirm(`Are you sure you want to ${type === "member" ? "remove this team member" : "delete this project"}?`)) return;
+    
+    const endpoint = type === "member" ? "/removeTeamMember" : "/deleteProject";
+    const success = await apiCall(endpoint, { id }, `delete_${id}`);
+    if (success) {
+      if (type === "member") {
+        setMembers((prev) => prev.filter((m) => m._id !== id));
       } else {
-        alert("Failed to delete project: " + (result.message || "Unknown error"));
+        setProjects((prev) => prev.filter((p) => p._id !== id));
       }
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      alert("Failed to delete project. Please try again.");
-    } finally {
-      setDeletingProjects((prev) => ({ ...prev, [projectId]: false }));
     }
-  }
+  };
 
-  function handleOpenAddModal() {
-    setShowAddModal(true);
-    setAddForm({ title: "", description: "", category: "", image: "" });
-  }
-
-  function handleCloseAddModal() {
-    setShowAddModal(false);
-    setAddForm({ title: "", description: "", category: "", image: "" });
-  }
-
-  async function handleAddProject(e) {
+  const handleAdd = async (e, type) => {
     e.preventDefault();
-    setAddingProject(true);
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/addProject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          title: addForm.title,
-          description: addForm.description,
-          category: addForm.category,
-          image: addForm.image || undefined,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Re-fetch projects to get the newly added project
-        const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
-          method: "get",
-          credentials: "include",
-        });
-        const projectData = await projectRes.json();
-        setProjects(projectData.projects);
-        
-        handleCloseAddModal();
-      } else {
-        alert("Failed to add project: " + (result.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error adding project:", error);
-      alert("Failed to add project. Please try again.");
-    } finally {
-      setAddingProject(false);
+    const endpoint = type === "member" ? "/addTeamMember" : "/addProject";
+    const success = await apiCall(endpoint, showModal.form, `add_${type}`);
+    if (success) {
+      await fetchData();
+      setShowModal({ type: null, form: {} });
     }
-  }
+  };
+
+  const handleApprove = async (id) => {
+    const success = await apiCall("/approveProjectRequest", { id }, `approve_${id}`);
+    if (success) {
+      setProjectRequests((prev) => prev.filter((req) => req._id !== id));
+      await fetchData();
+    }
+  };
+
+  const handleReject = async (id) => {
+    if (!confirm("Are you sure you want to reject this project request?")) return;
+    const success = await apiCall("/deleteProjectRequest", { id }, `reject_${id}`);
+    if (success) {
+      setProjectRequests((prev) => prev.filter((req) => req._id !== id));
+    }
+  };
+
+  const sidebarItems = [
+    { id: "members", label: "Team Members", icon: Users },
+    { id: "projects", label: "Projects", icon: FolderKanban },
+    { id: "requests", label: "Project Requests", icon: FileCheck },
+  ];
+
+  // ...existing code...
 
   // Team Member Functions
   function handleOpenAddMemberModal() {
@@ -413,27 +306,18 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-900 flex">
       {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-slate-800 border-r border-purple-500/20 transition-all duration-300 flex flex-col`}
-      >
-        {/* Sidebar Header */}
+      <aside className={`${sidebarOpen ? "w-64" : "w-20"} bg-slate-800 border-r border-purple-500/20 transition-all duration-300 flex flex-col`}>
         <div className="p-4 border-b border-purple-500/20 flex items-center justify-between">
           {sidebarOpen && (
             <h2 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Admin Panel
             </h2>
           )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-purple-500/10 rounded-lg transition-colors"
-          >
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-purple-500/10 rounded-lg transition-colors">
             {sidebarOpen ? <X className="w-5 h-5 text-gray-400" /> : <Menu className="w-5 h-5 text-gray-400" />}
           </button>
         </div>
 
-        {/* Sidebar Navigation */}
         <nav className="flex-1 p-4 space-y-2">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
@@ -458,7 +342,6 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="p-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">
               {sidebarItems.find((item) => item.id === activeTab)?.label}
@@ -470,7 +353,7 @@ export default function Dashboard() {
           {activeTab === "members" && (
             <div className="space-y-6">
               <button
-                onClick={handleOpenAddMemberModal}
+                onClick={() => setShowModal({ type: "member", form: { name: "", designation: "" } })}
                 className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
               >
                 <Plus className="w-5 h-5" />
@@ -479,87 +362,54 @@ export default function Dashboard() {
 
               <div className="grid gap-4">
                 {members.map((member) => (
-                  <div
-                    key={member._id}
-                    className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
-                  >
-                    {editingMember === member._id ? (
-                      // Edit Mode
+                  <div key={member._id} className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all">
+                    {editing.type === "member" && editing.id === member._id ? (
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            value={editMemberForm.name}
-                            onChange={(e) => setEditMemberForm({ ...editMemberForm, name: e.target.value })}
-                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Designation
-                          </label>
-                          <input
-                            type="text"
-                            value={editMemberForm.designation}
-                            onChange={(e) => setEditMemberForm({ ...editMemberForm, designation: e.target.value })}
-                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                          />
-                        </div>
+                        <input
+                          type="text"
+                          value={editing.form.name}
+                          onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })}
+                          className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white"
+                          placeholder="Name"
+                        />
+                        <input
+                          type="text"
+                          value={editing.form.designation}
+                          onChange={(e) => setEditing({ ...editing, form: { ...editing.form, designation: e.target.value } })}
+                          className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white"
+                          placeholder="Designation"
+                        />
                         <div className="flex space-x-3">
                           <button
-                            onClick={() => handleSaveMember(member._id)}
-                            disabled={savingMembers[member._id]}
-                            className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleSave("member", member._id)}
+                            disabled={loading[`save_${member._id}`]}
+                            className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50"
                           >
-                            {savingMembers[member._id] ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Saving...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Check className="w-4 h-4" />
-                                <span>Save</span>
-                              </>
-                            )}
+                            {loading[`save_${member._id}`] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                            <span>{loading[`save_${member._id}`] ? "Saving..." : "Save"}</span>
                           </button>
-                          <button
-                            onClick={handleCancelEditMember}
-                            disabled={savingMembers[member._id]}
-                            className="flex items-center space-x-2 px-4 py-2 bg-gray-500/10 text-gray-400 rounded-lg hover:bg-gray-500/20 transition-colors border border-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
+                          <button onClick={handleCancelEdit} className="flex items-center space-x-2 px-4 py-2 bg-gray-500/10 text-gray-400 rounded-lg hover:bg-gray-500/20 transition-colors border border-gray-500/20">
                             <XCircle className="w-4 h-4" />
                             <span>Cancel</span>
                           </button>
                         </div>
                       </div>
                     ) : (
-                      // View Mode
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
                           <p className="text-purple-400 text-sm mb-2">{member.designation || "No designation"}</p>
                         </div>
                         <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEditMember(member)}
-                            className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
-                          >
+                          <button onClick={() => handleEdit("member", member)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => handleDeleteMember(member._id)}
-                            disabled={deletingMembers[member._id]}
-                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleDelete("member", member._id)}
+                            disabled={loading[`delete_${member._id}`]}
+                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                           >
-                            {deletingMembers[member._id] ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-5 h-5" />
-                            )}
+                            {loading[`delete_${member._id}`] ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                           </button>
                         </div>
                       </div>
@@ -574,7 +424,7 @@ export default function Dashboard() {
           {activeTab === "projects" && (
             <div className="space-y-6">
               <button
-                onClick={handleOpenAddModal}
+                onClick={() => setShowModal({ type: "project", form: { title: "", description: "", category: "", image: "" } })}
                 className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
               >
                 <Plus className="w-5 h-5" />
@@ -583,113 +433,57 @@ export default function Dashboard() {
 
               <div className="grid gap-4">
                 {projects?.map((project) => (
-                  <div
-                    key={project._id}
-                    className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
-                  >
-                    {editingProject === project._id ? (
-                      // Edit Mode
+                  <div key={project._id} className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all">
+                    {editing.type === "project" && editing.id === project._id ? (
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Project Title
-                          </label>
-                          <input
-                            type="text"
-                            value={editForm.title}
-                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input type="text" value={editing.form.title} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, title: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Project Title" required />
+                          <input type="text" value={editing.form.category} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, category: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Category" />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Technology Stack
-                          </label>
-                          <input
-                            type="text"
-                            value={editForm.tech}
-                            onChange={(e) => setEditForm({ ...editForm, tech: e.target.value })}
-                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Description
-                          </label>
-                          <textarea
-                            value={editForm.description}
-                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                            rows="3"
-                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
-                          />
-                        </div>
-                        <div className="flex space-x-3">
-                          <button
-                            onClick={() => handleSaveProject(project._id)}
-                            disabled={savingProjects[project._id]}
-                            className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {savingProjects[project._id] ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Saving...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Check className="w-4 h-4" />
-                                <span>Save</span>
-                              </>
-                            )}
+                        <input type="text" value={editing.form.tech} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, tech: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Technology Stack" />
+                        <textarea value={editing.form.description} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, description: e.target.value } })} rows="3" className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white resize-none" placeholder="Description" required />
+                        <input type="url" value={editing.form.image} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, image: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Image URL" />
+                        <div className="flex space-x-3 pt-2">
+                          <button onClick={() => handleSave("project", project._id)} disabled={loading[`save_${project._id}`]} className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50">
+                            {loading[`save_${project._id}`] ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></> : <><Check className="w-4 h-4" /><span>Save Changes</span></>}
                           </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            disabled={savingProjects[project._id]}
-                            className="flex items-center space-x-2 px-4 py-2 bg-gray-500/10 text-gray-400 rounded-lg hover:bg-gray-500/20 transition-colors border border-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
+                          <button onClick={handleCancelEdit} disabled={loading[`save_${project._id}`]} className="flex items-center space-x-2 px-4 py-2 bg-gray-500/10 text-gray-400 rounded-lg hover:bg-gray-500/20 transition-colors border border-gray-500/20 disabled:opacity-50">
                             <XCircle className="w-4 h-4" />
                             <span>Cancel</span>
                           </button>
                         </div>
                       </div>
                     ) : (
-                      // View Mode
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-white mb-1">{project.title}</h3>
-                          <div className="flex items-center space-x-3">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                project.status === "Active"
-                                  ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                                  : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
-                              }`}
-                            >
-                              {project.status}
-                            </span>
-                            <span className="text-sm text-gray-400">{project.tech}</span>
+                      <div className="flex gap-4">
+                        {project.image ? (
+                          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-700/50">
+                            <img src={project.image} alt={project.title} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>'; }} />
                           </div>
-                          {project.description && (
-                            <p className="text-gray-400 text-sm mt-2">{project.description}</p>
-                          )}
-                        </div>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEditProject(project)}
-                            className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProject(project._id)}
-                            disabled={deletingProjects[project._id]}
-                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {deletingProjects[project._id] ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-5 h-5" />
-                            )}
-                          </button>
+                        ) : (
+                          <div className="flex-shrink-0 w-24 h-24 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 flex items-center justify-center">
+                            <FolderKanban className="w-10 h-10 text-purple-400" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-xl font-bold text-white mb-2 truncate">{project.title}</h3>
+                              <div className="flex flex-wrap items-center gap-2 mb-3">
+                                {project.category && <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">{project.category}</span>}
+                                {project.status && <span className={`px-3 py-1 rounded-full text-xs font-medium ${project.status === "Active" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-gray-500/10 text-gray-400 border border-gray-500/20"}`}>{project.status}</span>}
+                                {project.tech && <span className="text-sm text-gray-400">{project.tech}</span>}
+                              </div>
+                              {project.description && <p className="text-gray-400 text-sm line-clamp-2">{project.description}</p>}
+                            </div>
+                            <div className="flex space-x-2 flex-shrink-0">
+                              <button onClick={() => handleEdit("project", project)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit project">
+                                <Edit className="w-5 h-5" />
+                              </button>
+                              <button onClick={() => handleDelete("project", project._id)} disabled={loading[`delete_${project._id}`]} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50" title="Delete project">
+                                {loading[`delete_${project._id}`] ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -704,39 +498,20 @@ export default function Dashboard() {
             <div className="space-y-6">
               <div className="grid gap-4">
                 {projectRequests.map((request) => (
-                  <div
-                    key={request._id}
-                    className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
-                  >
+                  <div key={request._id} className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h3 className="text-xl font-bold text-white">{request.title}</h3>
-                          <span className="px-3 py-1 bg-yellow-500/10 text-yellow-400 text-xs font-medium rounded-full border border-yellow-500/20">
-                            Pending
-                          </span>
+                          <span className="px-3 py-1 bg-yellow-500/10 text-yellow-400 text-xs font-medium rounded-full border border-yellow-500/20">Pending</span>
                         </div>
                         <p className="text-sm text-gray-400 mb-2">Requested by: {request.name}</p>
                         <p className="text-gray-300">{request.description}</p>
                       </div>
                     </div>
                     <div className="flex space-x-3 pt-4 border-t border-slate-700">
-                      <button
-                        onClick={() => handleApprove(request._id)}
-                        disabled={loadingRequests[request._id]}
-                        className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loadingRequests[request._id] ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Approving...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Check className="w-4 h-4" />
-                            <span>Approve</span>
-                          </>
-                        )}
+                      <button onClick={() => handleApprove(request._id)} disabled={loading[`approve_${request._id}`]} className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50">
+                        {loading[`approve_${request._id}`] ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Approving...</span></> : <><Check className="w-4 h-4" /><span>Approve</span></>}
                       </button>
                       <button
                         onClick={() => handleReject(request)}
@@ -764,175 +539,37 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Add Member Modal */}
-      {showAddMemberModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 border border-purple-500/20 rounded-2xl p-6 max-w-md w-full">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Add Team Member</h2>
-              <button
-                onClick={handleCloseAddMemberModal}
-                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddMember} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  value={addMemberForm.name}
-                  onChange={(e) => setAddMemberForm({ ...addMemberForm, name: e.target.value })}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="Enter member name"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Designation *
-                </label>
-                <input
-                  type="text"
-                  value={addMemberForm.designation}
-                  onChange={(e) => setAddMemberForm({ ...addMemberForm, designation: e.target.value })}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="e.g., President, Vice President"
-                  required
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={addingMember}
-                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {addingMember ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Adding...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5" />
-                      <span>Add Member</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseAddMemberModal}
-                  disabled={addingMember}
-                  className="px-6 py-3 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Add Project Modal */}
-      {showAddModal && (
+      {/* Universal Modal */}
+      {showModal.type && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Add New Project</h2>
-              <button
-                onClick={handleCloseAddModal}
-                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-              >
+              <h2 className="text-2xl font-bold text-white">Add {showModal.type === "member" ? "Team Member" : "New Project"}</h2>
+              <button onClick={() => setShowModal({ type: null, form: {} })} className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
 
-            <form onSubmit={handleAddProject} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Project Title *
-                </label>
-                <input
-                  type="text"
-                  value={addForm.title}
-                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="Enter project title"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  value={addForm.description}
-                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
-                  rows="4"
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
-                  placeholder="Describe the project"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Category *
-                </label>
-                <input
-                  type="text"
-                  value={addForm.category}
-                  onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="e.g., Web Development, Mobile App"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Image URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={addForm.image}
-                  onChange={(e) => setAddForm({ ...addForm, image: e.target.value })}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
+            <form onSubmit={(e) => handleAdd(e, showModal.type)} className="space-y-4">
+              {showModal.type === "member" ? (
+                <>
+                  <input type="text" value={showModal.form.name || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, name: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Name" required />
+                  <input type="text" value={showModal.form.designation || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, designation: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Designation" required />
+                </>
+              ) : (
+                <>
+                  <input type="text" value={showModal.form.title || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, title: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Project Title" required />
+                  <textarea value={showModal.form.description || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, description: e.target.value } })} rows="4" className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white resize-none" placeholder="Description" required />
+                  <input type="text" value={showModal.form.category || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, category: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Category" required />
+                  <input type="url" value={showModal.form.image || ""} onChange={(e) => setShowModal({ ...showModal, form: { ...showModal.form, image: e.target.value } })} className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white" placeholder="Image URL (Optional)" />
+                </>
+              )}
 
               <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={addingProject}
-                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {addingProject ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Adding Project...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5" />
-                      <span>Add Project</span>
-                    </>
-                  )}
+                <button type="submit" disabled={loading[`add_${showModal.type}`]} className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50">
+                  {loading[`add_${showModal.type}`] ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Adding...</span></> : <><Plus className="w-5 h-5" /><span>Add {showModal.type === "member" ? "Member" : "Project"}</span></>}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCloseAddModal}
-                  disabled={addingProject}
-                  className="px-6 py-3 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <button type="button" onClick={() => setShowModal({ type: null, form: {} })} disabled={loading[`add_${showModal.type}`]} className="px-6 py-3 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50">
                   Cancel
                 </button>
               </div>
