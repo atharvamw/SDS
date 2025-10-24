@@ -33,7 +33,7 @@ export async function addProject(projectObj)
     {
         if(projectObj.title && projectObj.description)
         {
-            if(Project.findOne({title: projectObj.title}))
+            if(await Project.findOne({title: projectObj.title}))
             {
                 return {"status": "failed", "message": "Project Title Already Exists"}
             }
