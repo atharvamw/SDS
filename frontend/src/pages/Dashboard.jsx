@@ -6,6 +6,24 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("members");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  useEffect(async ()=>{
+    const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam")
+    const teamData = await teamRes.json()
+    setMembers(teamData.team)
+
+    const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects")
+    const projectData = await projectRes.json()
+    setProjects(projectData.projects)
+
+<<<<<<<<< Temporary merge branch 1
+    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequest")
+=========
+    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests")
+>>>>>>>>> Temporary merge branch 2
+    const projectRequestData = await projectRequestRes.json()
+    setProjects(projectRequestData.data)
+  }, [])
+
   // Sample data - replace with actual API calls
   const [members, setMembers] = useState([
     { _id: 1, name: "John Doe", role: "President", year: "Final Year", branch: "Computer" },
