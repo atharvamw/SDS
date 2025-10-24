@@ -13,6 +13,15 @@ export default function Dashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({ title: "", description: "", category: "", image: "" });
   const [addingProject, setAddingProject] = useState(false);
+  
+  // Team member states
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [addMemberForm, setAddMemberForm] = useState({ name: "", designation: "" });
+  const [addingMember, setAddingMember] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [editMemberForm, setEditMemberForm] = useState({ name: "", designation: "" });
+  const [savingMembers, setSavingMembers] = useState({});
+  const [deletingMembers, setDeletingMembers] = useState({});
 
   useEffect(() => {
     async function fetchData() {
@@ -263,6 +272,138 @@ export default function Dashboard() {
     }
   }
 
+  // Team Member Functions
+  function handleOpenAddMemberModal() {
+    setShowAddMemberModal(true);
+    setAddMemberForm({ name: "", designation: "" });
+  }
+
+  function handleCloseAddMemberModal() {
+    setShowAddMemberModal(false);
+    setAddMemberForm({ name: "", designation: "" });
+  }
+
+  async function handleAddMember(e) {
+    e.preventDefault();
+    setAddingMember(true);
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/addTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: addMemberForm.name,
+          designation: addMemberForm.designation,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Re-fetch team members
+        const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
+          method: "get",
+          credentials: "include",
+        });
+        const teamData = await teamRes.json();
+        setMembers(teamData.team);
+        
+        handleCloseAddMemberModal();
+      } else {
+        alert("Failed to add team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error adding team member:", error);
+      alert("Failed to add team member. Please try again.");
+    } finally {
+      setAddingMember(false);
+    }
+  }
+
+  function handleEditMember(member) {
+    setEditingMember(member._id);
+    setEditMemberForm({
+      name: member.name,
+      designation: member.designation || "",
+    });
+  }
+
+  function handleCancelEditMember() {
+    setEditingMember(null);
+    setEditMemberForm({ name: "", designation: "" });
+  }
+
+  async function handleSaveMember(memberId) {
+    setSavingMembers((prev) => ({ ...prev, [memberId]: true }));
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/updateTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: memberId,
+          data: {
+            name: editMemberForm.name,
+            designation: editMemberForm.designation,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Update member in state
+        setMembers((prev) =>
+          prev.map((m) =>
+            m._id === memberId ? { ...m, ...editMemberForm } : m
+          )
+        );
+        setEditingMember(null);
+        setEditMemberForm({ name: "", designation: "" });
+      } else {
+        alert("Failed to update team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error updating team member:", error);
+      alert("Failed to update team member. Please try again.");
+    } finally {
+      setSavingMembers((prev) => ({ ...prev, [memberId]: false }));
+    }
+  }
+
+  async function handleDeleteMember(memberId) {
+    if (!confirm("Are you sure you want to remove this team member?")) {
+      return;
+    }
+
+    setDeletingMembers((prev) => ({ ...prev, [memberId]: true }));
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/removeTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: memberId }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Remove member from state
+        setMembers((prev) => prev.filter((m) => m._id !== memberId));
+      } else {
+        alert("Failed to remove team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error removing team member:", error);
+      alert("Failed to remove team member. Please try again.");
+    } finally {
+      setDeletingMembers((prev) => ({ ...prev, [memberId]: false }));
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 flex">
       {/* Sidebar */}
@@ -322,7 +463,10 @@ export default function Dashboard() {
           {/* Team Members Tab */}
           {activeTab === "members" && (
             <div className="space-y-6">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg">
+              <button
+                onClick={handleOpenAddMemberModal}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
+              >
                 <Plus className="w-5 h-5" />
                 <span>Add New Member</span>
               </button>
@@ -333,25 +477,87 @@ export default function Dashboard() {
                     key={member._id}
                     className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
-                        <p className="text-purple-400 text-sm mb-2">{member.role}</p>
-                        <div className="flex space-x-4 text-sm text-gray-400">
-                          <span>{member.year}</span>
-                          <span>•</span>
-                          <span>{member.branch}</span>
+                    {editingMember === member._id ? (
+                      // Edit Mode
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Name
+                          </label>
+                          <input
+                            type="text"
+                            value={editMemberForm.name}
+                            onChange={(e) => setEditMemberForm({ ...editMemberForm, name: e.target.value })}
+                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Designation
+                          </label>
+                          <input
+                            type="text"
+                            value={editMemberForm.designation}
+                            onChange={(e) => setEditMemberForm({ ...editMemberForm, designation: e.target.value })}
+                            className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                          />
+                        </div>
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => handleSaveMember(member._id)}
+                            disabled={savingMembers[member._id]}
+                            className="flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {savingMembers[member._id] ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Saving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Save</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={handleCancelEditMember}
+                            disabled={savingMembers[member._id]}
+                            className="flex items-center space-x-2 px-4 py-2 bg-gray-500/10 text-gray-400 rounded-lg hover:bg-gray-500/20 transition-colors border border-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            <span>Cancel</span>
+                          </button>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
-                        <button className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
+                    ) : (
+                      // View Mode
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
+                          <p className="text-purple-400 text-sm mb-2">{member.designation || "No designation"}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditMember(member)}
+                            className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMember(member._id)}
+                            disabled={deletingMembers[member._id]}
+                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {deletingMembers[member._id] ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -551,6 +757,81 @@ export default function Dashboard() {
           )}
         </div>
       </main>
+
+      {/* Add Member Modal */}
+      {showAddMemberModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 border border-purple-500/20 rounded-2xl p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Add Team Member</h2>
+              <button
+                onClick={handleCloseAddMemberModal}
+                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddMember} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  value={addMemberForm.name}
+                  onChange={(e) => setAddMemberForm({ ...addMemberForm, name: e.target.value })}
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  placeholder="Enter member name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Designation *
+                </label>
+                <input
+                  type="text"
+                  value={addMemberForm.designation}
+                  onChange={(e) => setAddMemberForm({ ...addMemberForm, designation: e.target.value })}
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  placeholder="e.g., President, Vice President"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={addingMember}
+                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {addingMember ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      <span>Add Member</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseAddMemberModal}
+                  disabled={addingMember}
+                  className="px-6 py-3 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Project Modal */}
       {showAddModal && (
