@@ -30,4 +30,13 @@ export const mailTemplates = {
       <p style="color:#555;">– SDS Website</p>
     </div>
   `,
+  projectRequestSent: ({ name, title }) => `
+    <div style="font-family:Arial,sans-serif; padding:20px; line-height:1.6;">
+      <h2 style="color:#6d28d9;">Hi ${name},</h2>
+      <p>Your project <strong>${title}</strong> has been <b>received</b> by SDS Club</p>
+      <p>Please wait while SDS team goes through your project.</p>
+      <br/>
+      <p style="color:#555;">– SDS Club, COEP</p>
+    </div>
+  `
 };

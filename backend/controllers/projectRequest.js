@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { sendMail } from '../utils/sendMail.js'
 import {createProjectRequest, getProjectRequest, approveProjectRequest, deleteProjectRequest} from "../models/projectRequest.js"
 
 export async function handleRequestProject(req, res)
@@ -10,6 +11,17 @@ export async function handleRequestProject(req, res)
         return res.status(400).json({ status: "failed", message: "All fields required" });
       
       const result = await createProjectRequest(name,email, title, description)
+
+    if(result.status=="success") 
+    {
+        await sendMail(
+        email,
+        "Your Project Request Has Been Received!",
+        "projectRequestSent",
+        { name: name, title: title }
+      );
+    }
+
       res.status(201).json(result);
   
     } catch (e) {
@@ -40,33 +52,50 @@ export async function handleGetProjectRequest(req, res)
 
 export async function handleApproveProjectRequest(req, res)
 {
-    try
+
+  try{
+    if(req.cookies.token && req.body.id && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
     {
-      if(req.cookies.token && req.body.id && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
-      {
+      const projRequests = await approveProjectRequest(req.body.id)
+      const project = projRequests.data
+      if(projRequests.status=="success") {
+        // Notify applicant
+        await sendMail(
+        project.email,
+        "Your Project Has Been Approved 🎉",
+        "projectApproved",
+        { name: project.name, title: project.title }
+      );
 
-        const projRequests = await approveProjectRequest(req.body.id)
+      // Notify admin
+      await sendMail(
+        process.env.ADMIN_MAIL,
+        `Project Approved: ${project.title}`,
+        "projectApproved",
+        { name: "Admin", title: project.title }
+      );
 
-        if(projRequests.status=="success")
-          res.status(200).json(projRequests)
-        else
-          res.status(500).json(projRequests)
-
-      }
-      else if(!req.body.id)
-      {
-        res.status(404).json({"status": "failed", "message": "Please Enter a valid project id"})
+      res.status(200).json(projRequests)
       }
       else
-      {
-        res.status(401).json({"status": "failed", "message": "Please Login with a valid account!"})
-      }
+        res.status(500).json(projRequests)
     }
-    catch(err)
+    else if(!req.body.id)
     {
-      res.json({status: "error", message: err})
+      res.status(404).json({"status": "failed", "message": "Please Enter a valid project id"})
+    }
+    else
+    {
+      res.status(401).json({"status": "failed", "message": "Please Login with a valid account!"})
     }
   }
+  catch(err)
+  {
+    console.log(err)
+    res.json({status: "error", message: err})
+  }
+
+}
 
 export async function handleDeleteProject(req,res)
 {
