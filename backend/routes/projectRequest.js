@@ -1,6 +1,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import {createProjectRequest, getProjectRequest, approveProjectRequest, deleteProjectRequest} from "../models/projectRequest.js"
+import { sendMail } from '../utils/mailer.js'
 
 const router = express.Router()
 router.post("/requestProject", async (req, res) => {
@@ -45,8 +46,25 @@ router.post("/requestProject", async (req, res) => {
       if(req.cookies.token && req.body.id && jwt.verify(req.cookies.token, process.env.JWT_SECRET))
       {
         const projRequests = await approveProjectRequest(req.body.id)
-        if(projRequests.status=="success")
-          res.status(200).json(projRequests)
+        if(projRequests.status=="success") {
+          // Notify applicant
+          await sendMail(
+          project.email,
+          "Your Project Has Been Approved 🎉",
+          "projectApproved",
+          { name: project.name, title: project.title }
+        );
+
+        // Notify admin
+        await sendMail(
+          process.env.ADMIN_MAIL,
+          `Project Approved: ${project.title}`,
+          "projectApproved",
+          { name: "Admin", title: project.title }
+        );
+
+        res.status(200).json(projRequests)
+        }
         else
           res.status(500).json(projRequests)
       }
