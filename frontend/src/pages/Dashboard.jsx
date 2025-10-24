@@ -7,17 +7,27 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(async ()=>{
-    const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam")
+    const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
+      method: "get",
+      credentials: "include"
+    })
     const teamData = await teamRes.json()
     setMembers(teamData.team)
 
-    const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects")
+    const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
+        method: "get",
+        credentials: "include"
+    })
     const projectData = await projectRes.json()
+    console.log(projectData.projects)
     setProjects(projectData.projects)
 
-    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests")
+    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests", {
+        method: "get",
+        credentials: "include"
+    })
     const projectRequestData = await projectRequestRes.json()
-    setProjects(projectRequestData.data)
+    setProjectRequests(projectRequestData.data)
   }, [])
 
   // Sample data - replace with actual API calls
@@ -146,7 +156,7 @@ export default function Dashboard() {
               </button>
 
               <div className="grid gap-4">
-                {projects.map((project) => (
+                {projects?.map((project) => (
                   <div
                     key={project._id}
                     className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/40 transition-all"
