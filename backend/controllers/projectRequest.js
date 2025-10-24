@@ -78,6 +78,7 @@ export async function handleApproveProjectRequest(req, res)
   }
   catch(err)
   {
+    console.log(err)
     res.json({status: "error", message: err})
   }
 
