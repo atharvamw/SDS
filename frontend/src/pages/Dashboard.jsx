@@ -97,36 +97,42 @@ export default function Dashboard() {
     }
   }
 
-  async function handleReject(requestId) {
-    if (!confirm("Are you sure you want to reject this project request?")) {
-      return;
-    }
-
-    setRejectingRequests((prev) => ({ ...prev, [requestId]: true }));
-
-    try {
-      const response = await fetch("https://api.sdsclub.pp.ua/deleteProjectRequest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: requestId }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        // Remove rejected request from state
-        setProjectRequests((prev) => prev.filter((req) => req._id !== requestId));
-      } else {
-        alert("Failed to reject request: " + (result.message || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error rejecting request:", error);
-      alert("Failed to reject request. Please try again.");
-    } finally {
-      setRejectingRequests((prev) => ({ ...prev, [requestId]: false }));
-    }
+  async function handleReject(request) {
+  if (!confirm(`Are you sure you want to reject "${request.title}" by ${request.name}?`)) {
+    return;
   }
+
+  setRejectingRequests((prev) => ({ ...prev, [request._id]: true }));
+
+  try {
+    const response = await fetch("https://api.sdsclub.pp.ua/rejectProjectRequest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        id: request._id,
+        name: request.name,
+        email: request.email,
+        title: request.title,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.status === "success") {
+      alert("✅ Project rejected and mail sent successfully!");
+      setProjectRequests((prev) => prev.filter((req) => req._id !== request._id));
+    } else {
+      alert("❌ Failed to reject request: " + (result.message || "Unknown error"));
+    }
+  } catch (error) {
+    console.error("Error rejecting request:", error);
+    alert("⚠️ Failed to reject request. Please try again.");
+  } finally {
+    setRejectingRequests((prev) => ({ ...prev, [request._id]: false }));
+  }
+}
+
 
   function handleEditProject(project) {
     setEditingProject(project._id);
@@ -527,7 +533,7 @@ export default function Dashboard() {
                         )}
                       </button>
                       <button
-                        onClick={() => handleReject(request._id)}
+                        onClick={() => handleReject(request)}
                         disabled={rejectingRequests[request._id]}
                         className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       >

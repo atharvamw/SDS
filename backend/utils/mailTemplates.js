@@ -10,14 +10,15 @@ export const mailTemplates = {
   `,
 
   projectRejected: ({ name, title }) => `
-    <div style="font-family:Arial,sans-serif; padding:20px; line-height:1.6;">
-      <h2 style="color:#dc2626;">Hi ${name},</h2>
-      <p>Unfortunately, your project <strong>${title}</strong> was <b>not approved</b> this time.</p>
-      <p>You can refine and reapply later. Keep innovating!</p>
-      <br/>
-      <p style="color:#555;">– SDS Club, COEP</p>
-    </div>
+  <div style="font-family:Arial,sans-serif; padding:20px; line-height:1.6;">
+    <h2 style="color:#dc2626;">Hi ${name},</h2>
+    <p>We regret to inform you that your project <strong>${title}</strong> has been <b>rejected</b> by the SDS Club team.</p>
+    <p>You can always improve your proposal and apply again. Keep innovating 💡</p>
+    <br/>
+    <p style="color:#555;">– SDS Club, COEP</p>
+  </div>
   `,
+
 
   contactForm: ({ name, email, message }) => `
     <div style="font-family:Arial,sans-serif; padding:20px; line-height:1.6;">
