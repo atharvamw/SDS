@@ -6,6 +6,7 @@ import userRouter from './routes/user.js'
 import projectRouter from './routes/project.js'
 import teamRouter from './routes/team.js'
 import projectReqRouter from './routes/projectRequest.js'
+import contactRouter from './routes/contact.js'
 
 import cors from 'cors'
 import cookieParser from "cookie-parser"
@@ -56,7 +57,9 @@ app.use(userRouter)
 app.use(projectRouter)
 app.use(teamRouter)
 app.use(projectReqRouter)
+app.use("/api", contactRouter)
 
+const PORT = process.env.PORT || 5000;
 
 app.listen(5000, ()=>{
     console.log("Server Started at http://localhost:5000");
