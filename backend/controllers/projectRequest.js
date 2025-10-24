@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { sendMail } from '../utils/sendMail.js'
 import {createProjectRequest, getProjectRequest, approveProjectRequest, deleteProjectRequest} from "../models/projectRequest.js"
 
 export async function handleRequestProject(req, res)
