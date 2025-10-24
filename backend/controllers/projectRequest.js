@@ -97,6 +97,52 @@ export async function handleApproveProjectRequest(req, res)
 
 }
 
+export async function handleRejectProject(req, res) {
+  try {
+    // Verify token and ID
+    if (!req.cookies.token || !req.body.id)
+      return res.status(400).json({ status: "failed", message: "Missing project ID or not authenticated" });
+
+    const verified = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    if (!verified)
+      return res.status(401).json({ status: "failed", message: "Invalid or expired token" });
+
+    const id = req.body.id;
+    const projectData = await deleteProjectRequest(id); // reuse delete logic
+
+    if (projectData.status === "success") {
+      // Get project details before deletion if needed
+      // To do this, you can first fetch before deleting in your model later
+
+      const { email, name, title } = req.body; // make sure frontend sends these
+
+      // Send rejection email to applicant
+      await sendMail(
+        email,
+        "Your Project Request Has Been Rejected ❌",
+        "projectRejected",
+        { name, title }
+      );
+
+      // Send info mail to admin
+      await sendMail(
+        process.env.ADMIN_MAIL,
+        `Project Rejected: ${title}`,
+        "projectRejected",
+        { name: "Admin", title }
+      );
+
+      res.status(200).json({ status: "success", message: "Project rejected and emails sent" });
+    } else {
+      res.status(500).json({ status: "failed", message: "Error rejecting project" });
+    }
+  } catch (error) {
+    console.error("Error rejecting project:", error);
+    res.status(500).json({ status: "error", message: "Internal Server Error" });
+  }
+}
+
+
 export async function handleDeleteProject(req,res)
 {
     if(req.cookies.token && jwt.verify(req.cookies.token,process.env.JWT_SECRET))
