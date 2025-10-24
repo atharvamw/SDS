@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar } from "lucide-react"; // Added for header
+import { Calendar } from "lucide-react";
 import Bg from "../components/Background";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -123,23 +123,20 @@ export default function TalksTimeline() {
     <>
       <Navbar />
       <Bg>
-        {/* Main wrapper from About.jsx */}
         <div className="pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
-          {/* Main content section */}
           <section className="mb-12 sm:mb-16 lg:mb-20">
-            {/* Using max-w-5xl as it's optimal for a timeline layout */}
             <div className="max-w-5xl mx-auto">
-              {/* --- Re-styled Header (from About.jsx) --- */}
+              {/* Header */}
               <div className="text-center mb-12 sm:mb-16">
                 <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-4 sm:mb-6">
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                  <span className="text-xs sm:text-sm text-purple-300 font-['Rajdhani']">
+                  <span className="text-xs sm:text-sm text-purple-300">
                     Our Events
                   </span>
                 </div>
 
                 <h1
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 px-4"
+                  className="text-6xl md:text-7xl font-bold text-white mb-6 px-4"
                   style={{ fontFamily: "Orbitron, sans-serif" }}
                 >
                   <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
@@ -147,12 +144,11 @@ export default function TalksTimeline() {
                   </span>
                 </h1>
 
-                <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4 font-['Rajdhani']">
+                <p className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
                   A timeline of workshops, hackathons, and guest lectures hosted
                   by SDS.
                 </p>
               </div>
-              {/* --- End of Header --- */}
 
               <div className="relative">
                 {/* Vertical Timeline line */}
@@ -184,8 +180,8 @@ export default function TalksTimeline() {
                     >
                       {/* Tag */}
                       <div
-                        className={`inline-block px-3 py-1 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 rounded-full mb-3 font-['Rajdhani'] ${
-                          i % 2 === 0 ? "" : "md:float-right md:clear-both" // Ensures tag aligns correctly on reversed cards
+                        className={`inline-block px-3 py-1 text-xs font-semibold text-white bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 rounded-full mb-3 ${
+                          i % 2 === 0 ? "" : "md:float-right md:clear-both"
                         }`}
                       >
                         {item.tag}
@@ -193,8 +189,8 @@ export default function TalksTimeline() {
 
                       {/* Date */}
                       {item.date && (
-                        <div className={`text-sm text-gray-400 font-medium mb-1 font-['Rajdhani'] ${
-                          i % 2 === 0 ? "" : "md:text-right" // Align date to the right for reversed cards
+                        <div className={`text-xs text-gray-400 font-medium mb-2 ${
+                          i % 2 === 0 ? "" : "md:text-right"
                         }`}>
                           {item.date}
                         </div>
@@ -202,8 +198,8 @@ export default function TalksTimeline() {
 
                       {/* Title */}
                       <div
-                        className={`text-lg font-semibold text-white ${
-                          i % 2 === 0 ? "" : "md:text-right" // Align title to the right for reversed cards
+                        className={`text-base font-semibold text-white ${
+                          i % 2 === 0 ? "" : "md:text-right"
                         }`}
                         style={{ fontFamily: "Orbitron, sans-serif" }}
                       >
@@ -216,23 +212,23 @@ export default function TalksTimeline() {
             </div>
           </section>
 
-          {/* Get in touch / CTA (from About.jsx) */}
+          {/* CTA Section */}
           <section className="mb-12 sm:mb-20">
             <div className="max-w-7xl mx-auto text-center px-4">
               <h2
-                className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4"
+                className="text-4xl font-bold mb-4"
                 style={{ fontFamily: "Orbitron, sans-serif" }}
               >
                 <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   GET IN TOUCH
                 </span>
               </h2>
-              <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg font-['Rajdhani']">
+              <p className="text-base text-gray-300 mb-6">
                 Have a Project?
               </p>
               <a
                 href="/request-project"
-                className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 hover:from-purple-600 hover:via-teal-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 hover:from-purple-600 hover:via-teal-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
                 style={{ fontFamily: "Orbitron, sans-serif" }}
               >
                 Have a Project? Click Here!

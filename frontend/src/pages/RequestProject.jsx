@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { FilePlus } from "lucide-react"; // Added icon
-import Bg from "../components/Background"; // Added import
-import Navbar from "../components/Navbar"; // Added import
-import Footer from "../components/Footer"; // Added import
+import { FilePlus } from "lucide-react";
+import Bg from "../components/Background";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function RequestProject() {
   const [form, setForm] = useState({
@@ -57,7 +57,7 @@ export default function RequestProject() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-6">
                 <FilePlus className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-300 font-['Rajdhani']">
+                <span className="text-sm text-purple-300"> {/* Removed font */}
                   Submit an Idea
                 </span>
               </div>
@@ -69,10 +69,7 @@ export default function RequestProject() {
                   REQUEST A PROJECT
                 </span>
               </h1>
-              <p
-                className="text-lg text-gray-300 max-w-2xl mx-auto"
-                style={{ fontFamily: "Rajdhani, sans-serif" }}
-              >
+              <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed"> {/* Removed style, matched Home.jsx */}
                 Have an idea for a project that SDS can build for the college?
                 Let us know!
               </p>
@@ -87,7 +84,7 @@ export default function RequestProject() {
                   placeholder="Your Name"
                   value={form.name}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all font-['Rajdhani']"
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all" /* Removed font */
                   required
                 />
                 <input
@@ -96,7 +93,7 @@ export default function RequestProject() {
                   placeholder="Your Email"
                   value={form.email}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all font-['Rajdhani']"
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all" /* Removed font */
                   required
                 />
                 <input
@@ -105,7 +102,7 @@ export default function RequestProject() {
                   placeholder="Project Title"
                   value={form.title}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all font-['Rajdhani']"
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all" /* Removed font */
                   required
                 />
                 <textarea
@@ -114,10 +111,10 @@ export default function RequestProject() {
                   rows="5"
                   value={form.description}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all resize-none font-['Rajdhani']"
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all resize-none" /* Removed font */
                   required
                 ></textarea>
-                
+
                 {/* Themed Submit Button */}
                 <button
                   type="submit"
@@ -132,7 +129,7 @@ export default function RequestProject() {
               {/* Themed Status Message */}
               {message && (
                 <p
-                  className={`text-center mt-6 font-medium font-['Rajdhani'] ${
+                  className={`text-center mt-6 font-medium ${ /* Removed font */
                     status === "success" ? "text-green-400" : "text-red-400"
                   }`}
                 >

@@ -1,11 +1,11 @@
-import { useContext } from "react"; // Removed unused imports
+import { useContext } from "react";
 import { AuthContext } from "../context/Auth";
 import { useNavigate } from "react-router-dom";
 import { Lock, User, Sparkles, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
-import Bg from "../components/Background"; // Added import
-import Navbar from "../components/Navbar"; // Added import
-import Footer from "../components/Footer"; // Added import
+import Bg from "../components/Background";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function LoginPage(props) {
   const Auth = useContext(AuthContext);
@@ -31,32 +31,30 @@ export default function LoginPage(props) {
       <Bg>
         {/* Main wrapper div from About.jsx */}
         <div className="pt-20 sm:pt-24 pb-8 sm:pb-16 px-4 sm:px-6 lg:px-8">
-          {/* Removed custom background effects div */}
-
           <div className="max-w-md mx-auto relative z-10">
             {/* Header */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-6">
                 <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-300 font-['Rajdhani']"> {/* Added font */}
+                <span className="text-sm text-purple-300"> {/* Removed font */}
                   Secure Access
                 </span>
               </div>
               <h1
                 className="text-4xl font-bold text-white mb-2"
-                style={{ fontFamily: "Orbitron, sans-serif" }} // Added font
+                style={{ fontFamily: "Orbitron, sans-serif" }}
               >
                 Admin{" "}
-                <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent"> {/* Matched gradient */}
+                <span className="bg-gradient-to-r from-purple-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   Login
                 </span>
               </h1>
-              <p className="text-gray-400 font-['Rajdhani']"> {/* Added font */}
+              <p className="text-gray-300 text-lg leading-relaxed"> {/* Removed font, matched style */}
                 Access the SDS admin dashboard
               </p>
             </div>
 
-            {/* Login Card (Already matches theme style) */}
+            {/* Login Card */}
             <div className="bg-slate-800/50 backdrop-blur-lg border border-purple-500/20 rounded-2xl p-8 shadow-xl">
               <form
                 onSubmit={(e) => {
@@ -70,7 +68,7 @@ export default function LoginPage(props) {
                 <div>
                   <label
                     htmlFor="username"
-                    className="block text-sm font-medium text-gray-300 mb-2 font-['Rajdhani']" /* Added font */
+                    className="block text-sm font-medium text-gray-300 mb-2" /* Removed font */
                   >
                     Username
                   </label>
@@ -83,7 +81,7 @@ export default function LoginPage(props) {
                       id="username"
                       name="username"
                       required
-                      className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-purple-500/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all font-['Rajdhani']" /* Added font */
+                      className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-purple-500/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all" /* Removed font */
                       placeholder="Enter your username"
                     />
                   </div>
@@ -93,7 +91,7 @@ export default function LoginPage(props) {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-300 mb-2 font-['Rajdhani']" /* Added font */
+                    className="block text-sm font-medium text-gray-300 mb-2" /* Removed font */
                   >
                     Password
                   </label>
@@ -106,17 +104,17 @@ export default function LoginPage(props) {
                       id="password"
                       name="password"
                       required
-                      className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-purple-500/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all font-['Rajdhani']" /* Added font */
+                      className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-purple-500/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all" /* Removed font */
                       placeholder="Enter your password"
                     />
                   </div>
                 </div>
 
-                {/* Submit Button (Matched theme button) */}
+                {/* Submit Button */}
                 <button
                   type="submit"
                   className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 via-teal-500 to-cyan-500 hover:from-purple-600 hover:via-teal-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                  style={{ fontFamily: "Orbitron, sans-serif" }} // Added font
+                  style={{ fontFamily: "Orbitron, sans-serif" }}
                 >
                   Sign In
                 </button>
@@ -124,7 +122,7 @@ export default function LoginPage(props) {
                 {/* Success Message */}
                 {Auth.userAuth.user != null && (
                   <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-                    <p className="text-green-400 text-sm font-medium font-['Rajdhani']"> {/* Added font */}
+                    <p className="text-green-400 text-sm font-medium"> {/* Removed font */}
                       ✓ Logged in successfully!
                     </p>
                   </div>
@@ -132,12 +130,12 @@ export default function LoginPage(props) {
 
                 {/* Registration Link */}
                 <div className="mt-6 pt-6 border-t border-purple-500/20 text-center">
-                  <p className="text-gray-400 text-sm mb-3 font-['Rajdhani']"> {/* Added font */}
+                  <p className="text-gray-400 text-sm mb-3"> {/* Removed font */}
                     New admin? Request access to the dashboard
                   </p>
                   <Link
                     to="/register"
-                    className="inline-flex items-center space-x-2 text-purple-400 hover:text-cyan-400 transition-colors text-sm font-medium font-['Rajdhani']" /* Matched hover & font */
+                    className="inline-flex items-center space-x-2 text-purple-400 hover:text-cyan-400 transition-colors text-sm font-medium" /* Removed font */
                   >
                     <UserPlus className="w-4 h-4" />
                     <span>Register as Admin</span>
@@ -147,11 +145,11 @@ export default function LoginPage(props) {
             </div>
 
             {/* Footer Note */}
-            <p className="text-center text-gray-500 text-sm mt-6 font-['Rajdhani']"> {/* Added font */}
+            <p className="text-center text-gray-500 text-sm mt-6"> {/* Removed font */}
               For authorized personnel only
             </p>
           </div>
-
+          
         </div>
       </Bg>
     </>
