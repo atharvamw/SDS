@@ -21,6 +21,24 @@ function App() {
 
   const [projects, setProjects] = useState([]);
   const [team, setTeam] = useState([]);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    // Immediately invoked async function for fetching
+    (async () => {
+      try {
+        const response = await fetch("https://api.sdsclub.pp.ua/getEvents");
+        const data = await response.json();
+
+        if (data.status === "success") {
+          setEvents(data.data || []);
+        } else {
+          console.error("Failed to fetch events:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    })();  
 
   useEffect(() => {
     // Fetch projects
