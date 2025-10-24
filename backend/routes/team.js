@@ -1,8 +1,11 @@
-import express from 'express'
-import { handleGetTeam } from '../controllers/team.js';
+import express from 'express';
+import { handleGetTeam, handleAddTeamMember, handleRemoveTeamMember, handleUpdateTeamMember } from '../controllers/team.js';
 
-const router = express.Router()
+const router = express.Router();
 
 router.get("/getTeam", handleGetTeam);
+router.post("/addTeamMember", handleAddTeamMember);
+router.post("/removeTeamMember", handleRemoveTeamMember);
+router.post("/updateTeamMember", handleUpdateTeamMember);
 
-export default router
+export default router;
