@@ -9,6 +9,10 @@ export default function Dashboard() {
   const [editForm, setEditForm] = useState({ title: "", description: "", tech: "" });
   const [deletingProjects, setDeletingProjects] = useState({});
   const [savingProjects, setSavingProjects] = useState({});
+  const [rejectingRequests, setRejectingRequests] = useState({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({ title: "", description: "", category: "", image: "" });
+  const [addingProject, setAddingProject] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -74,6 +78,14 @@ export default function Dashboard() {
       if (result.status === "success") {
         // Remove approved request from state
         setProjectRequests((prev) => prev.filter((req) => req._id !== requestId));
+        
+        // Re-fetch projects to get the newly approved project
+        const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
+          method: "get",
+          credentials: "include",
+        });
+        const projectData = await projectRes.json();
+        setProjects(projectData.projects);
       } else {
         alert("Failed to approve request: " + (result.message || "Unknown error"));
       }
@@ -82,6 +94,37 @@ export default function Dashboard() {
       alert("Failed to approve request. Please try again.");
     } finally {
       setLoadingRequests((prev) => ({ ...prev, [requestId]: false }));
+    }
+  }
+
+  async function handleReject(requestId) {
+    if (!confirm("Are you sure you want to reject this project request?")) {
+      return;
+    }
+
+    setRejectingRequests((prev) => ({ ...prev, [requestId]: true }));
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/deleteProjectRequest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: requestId }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Remove rejected request from state
+        setProjectRequests((prev) => prev.filter((req) => req._id !== requestId));
+      } else {
+        alert("Failed to reject request: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      alert("Failed to reject request. Please try again.");
+    } finally {
+      setRejectingRequests((prev) => ({ ...prev, [requestId]: false }));
     }
   }
 
@@ -103,7 +146,7 @@ export default function Dashboard() {
     setSavingProjects((prev) => ({ ...prev, [projectId]: true }));
 
     try {
-      const response = await fetch("http://api.sdsclub.pp.ua/updateProject", {
+      const response = await fetch("https://api.sdsclub.pp.ua/updateProject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -167,6 +210,56 @@ export default function Dashboard() {
       alert("Failed to delete project. Please try again.");
     } finally {
       setDeletingProjects((prev) => ({ ...prev, [projectId]: false }));
+    }
+  }
+
+  function handleOpenAddModal() {
+    setShowAddModal(true);
+    setAddForm({ title: "", description: "", category: "", image: "" });
+  }
+
+  function handleCloseAddModal() {
+    setShowAddModal(false);
+    setAddForm({ title: "", description: "", category: "", image: "" });
+  }
+
+  async function handleAddProject(e) {
+    e.preventDefault();
+    setAddingProject(true);
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/addProject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: addForm.title,
+          description: addForm.description,
+          category: addForm.category,
+          image: addForm.image || undefined,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Re-fetch projects to get the newly added project
+        const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
+          method: "get",
+          credentials: "include",
+        });
+        const projectData = await projectRes.json();
+        setProjects(projectData.projects);
+        
+        handleCloseAddModal();
+      } else {
+        alert("Failed to add project: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error adding project:", error);
+      alert("Failed to add project. Please try again.");
+    } finally {
+      setAddingProject(false);
     }
   }
 
@@ -268,7 +361,10 @@ export default function Dashboard() {
           {/* Projects Tab */}
           {activeTab === "projects" && (
             <div className="space-y-6">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg">
+              <button
+                onClick={handleOpenAddModal}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
+              >
                 <Plus className="w-5 h-5" />
                 <span>Add New Project</span>
               </button>
@@ -430,9 +526,22 @@ export default function Dashboard() {
                           </>
                         )}
                       </button>
-                      <button className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20">
-                        <XCircle className="w-4 h-4" />
-                        <span>Reject</span>
+                      <button
+                        onClick={() => handleReject(request._id)}
+                        disabled={rejectingRequests[request._id]}
+                        className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {rejectingRequests[request._id] ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Rejecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-4 h-4" />
+                            <span>Reject</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -442,6 +551,108 @@ export default function Dashboard() {
           )}
         </div>
       </main>
+
+      {/* Add Project Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Add New Project</h2>
+              <button
+                onClick={handleCloseAddModal}
+                className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddProject} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Project Title *
+                </label>
+                <input
+                  type="text"
+                  value={addForm.title}
+                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  placeholder="Enter project title"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description *
+                </label>
+                <textarea
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                  rows="4"
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+                  placeholder="Describe the project"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Category *
+                </label>
+                <input
+                  type="text"
+                  value={addForm.category}
+                  onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  placeholder="e.g., Web Development, Mobile App"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={addForm.image}
+                  onChange={(e) => setAddForm({ ...addForm, image: e.target.value })}
+                  className="w-full bg-slate-900/50 border border-purple-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={addingProject}
+                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {addingProject ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Adding Project...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      <span>Add Project</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseAddModal}
+                  disabled={addingProject}
+                  className="px-6 py-3 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
