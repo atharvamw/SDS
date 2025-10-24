@@ -43,6 +43,33 @@ export default function Dashboard() {
     }
   }
 
+  async function handleReject(request) {
+  if (!confirm(`Are you sure you want to reject "${request.title}" by ${request.name}?`)) {
+    return;
+  }
+
+  setRejectingRequests((prev) => ({ ...prev, [request._id]: true }));
+
+  try {
+    const response = await fetch("https://api.sdsclub.pp.ua/rejectProjectRequest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        id: request._id,
+        name: request.name,
+        email: request.email,
+        title: request.title,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.status === "success") {
+      alert("✅ Project rejected and mail sent successfully!");
+      setProjectRequests((prev) => prev.filter((req) => req._id !== request._id));
+    } else {
+      alert("❌ Failed to reject request: " + (result.message || "Unknown error"));
   async function apiCall(endpoint, body, loadingKey) {
     setLoading((prev) => ({ ...prev, [loadingKey]: true }));
     try {
@@ -64,7 +91,14 @@ export default function Dashboard() {
     } finally {
       setLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
+  } catch (error) {
+    console.error("Error rejecting request:", error);
+    alert("⚠️ Failed to reject request. Please try again.");
+  } finally {
+    setRejectingRequests((prev) => ({ ...prev, [request._id]: false }));
   }
+}
+
 
   // Generic handlers
   const handleEdit = (type, item) => {
@@ -479,8 +513,22 @@ export default function Dashboard() {
                       <button onClick={() => handleApprove(request._id)} disabled={loading[`approve_${request._id}`]} className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50">
                         {loading[`approve_${request._id}`] ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Approving...</span></> : <><Check className="w-4 h-4" /><span>Approve</span></>}
                       </button>
-                      <button onClick={() => handleReject(request._id)} disabled={loading[`reject_${request._id}`]} className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50">
-                        {loading[`reject_${request._id}`] ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Rejecting...</span></> : <><XCircle className="w-4 h-4" /><span>Reject</span></>}
+                      <button
+                        onClick={() => handleReject(request)}
+                        disabled={rejectingRequests[request._id]}
+                        className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {rejectingRequests[request._id] ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Rejecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-4 h-4" />
+                            <span>Reject</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
