@@ -6,28 +6,32 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("members");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(async ()=>{
-    const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
-      method: "get",
-      credentials: "include"
-    })
-    const teamData = await teamRes.json()
-    setMembers(teamData.team)
+  useEffect(()=>{
 
-    const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
-        method: "get",
-        credentials: "include"
-    })
-    const projectData = await projectRes.json()
-    console.log(projectData.projects)
-    setProjects(projectData.projects)
+    async function fetchData(){
+        const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
+          method: "get",
+          credentials: "include"
+        })
+        const teamData = await teamRes.json()
+        setMembers(teamData.team)
+    
+        const projectRes = await fetch("https://api.sdsclub.pp.ua/getProjects", {
+            method: "get",
+            credentials: "include"
+        })
+        const projectData = await projectRes.json()
+        setProjects(projectData.projects)
+    
+        const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests", {
+            method: "get",
+            credentials: "include"
+        })
+        const projectRequestData = await projectRequestRes.json()
+        setProjectRequests(projectRequestData.data)
+    }
+    fetchData()
 
-    const projectRequestRes = await fetch("https://api.sdsclub.pp.ua/getProjectRequests", {
-        method: "get",
-        credentials: "include"
-    })
-    const projectRequestData = await projectRequestRes.json()
-    setProjectRequests(projectRequestData.data)
   }, [])
 
   // Sample data - replace with actual API calls
