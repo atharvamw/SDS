@@ -137,6 +137,138 @@ export default function Dashboard() {
 
   // ...existing code...
 
+  // Team Member Functions
+  function handleOpenAddMemberModal() {
+    setShowAddMemberModal(true);
+    setAddMemberForm({ name: "", designation: "" });
+  }
+
+  function handleCloseAddMemberModal() {
+    setShowAddMemberModal(false);
+    setAddMemberForm({ name: "", designation: "" });
+  }
+
+  async function handleAddMember(e) {
+    e.preventDefault();
+    setAddingMember(true);
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/addTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: addMemberForm.name,
+          designation: addMemberForm.designation,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Re-fetch team members
+        const teamRes = await fetch("https://api.sdsclub.pp.ua/getTeam", {
+          method: "get",
+          credentials: "include",
+        });
+        const teamData = await teamRes.json();
+        setMembers(teamData.team);
+        
+        handleCloseAddMemberModal();
+      } else {
+        alert("Failed to add team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error adding team member:", error);
+      alert("Failed to add team member. Please try again.");
+    } finally {
+      setAddingMember(false);
+    }
+  }
+
+  function handleEditMember(member) {
+    setEditingMember(member._id);
+    setEditMemberForm({
+      name: member.name,
+      designation: member.designation || "",
+    });
+  }
+
+  function handleCancelEditMember() {
+    setEditingMember(null);
+    setEditMemberForm({ name: "", designation: "" });
+  }
+
+  async function handleSaveMember(memberId) {
+    setSavingMembers((prev) => ({ ...prev, [memberId]: true }));
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/updateTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: memberId,
+          data: {
+            name: editMemberForm.name,
+            designation: editMemberForm.designation,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Update member in state
+        setMembers((prev) =>
+          prev.map((m) =>
+            m._id === memberId ? { ...m, ...editMemberForm } : m
+          )
+        );
+        setEditingMember(null);
+        setEditMemberForm({ name: "", designation: "" });
+      } else {
+        alert("Failed to update team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error updating team member:", error);
+      alert("Failed to update team member. Please try again.");
+    } finally {
+      setSavingMembers((prev) => ({ ...prev, [memberId]: false }));
+    }
+  }
+
+  async function handleDeleteMember(memberId) {
+    if (!confirm("Are you sure you want to remove this team member?")) {
+      return;
+    }
+
+    setDeletingMembers((prev) => ({ ...prev, [memberId]: true }));
+
+    try {
+      const response = await fetch("https://api.sdsclub.pp.ua/removeTeamMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: memberId }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        // Remove member from state
+        setMembers((prev) => prev.filter((m) => m._id !== memberId));
+      } else {
+        alert("Failed to remove team member: " + (result.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error removing team member:", error);
+      alert("Failed to remove team member. Please try again.");
+    } finally {
+      setDeletingMembers((prev) => ({ ...prev, [memberId]: false }));
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 flex">
       {/* Sidebar */}
