@@ -7,6 +7,7 @@ import projectRouter from './routes/project.js'
 import teamRouter from './routes/team.js'
 import projectReqRouter from './routes/projectRequest.js'
 import contactRouter from './routes/contact.js'
+import eventsRouter from "./routes/events.js";
 
 import cors from 'cors'
 import cookieParser from "cookie-parser"
@@ -58,6 +59,8 @@ app.use(projectRouter)
 app.use(teamRouter)
 app.use(projectReqRouter)
 app.use("/api", contactRouter)
+
+app.use("/", eventsRouter);
 
 const PORT = process.env.PORT || 5000;
 
