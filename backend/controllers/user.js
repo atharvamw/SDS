@@ -2,6 +2,8 @@ import {createUser, findUser} from "../models/user.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+const saltRounds = 10;
+
 export async function handleLogin(req,res)
 {
     const data = req.body;
