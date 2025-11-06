@@ -12,8 +12,8 @@ export const getEvents = async()=>{
 
     try
     {
-        const resultData = Event.find({});
-        return resultData
+        const resultData = await Event.find({}).sort({ date: -1 }).lean()
+        return { status: "success", resultData }
     }
     catch(error){
         console.log(error)
