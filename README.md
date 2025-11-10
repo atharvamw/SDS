@@ -84,12 +84,12 @@ ADMIN_MAIL_PASS=yourAppPassword # Google App Password (16 characters)
 #### Backend
 ```bash
 cd backend
-npm start
+npm run dev
 ```
 #### Frontend
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 ## ✨ Admin Workflow
 | Action               | Trigger                                             |
