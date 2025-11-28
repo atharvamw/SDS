@@ -23,8 +23,8 @@ function App() {
   const [team, setTeam] = useState([]);
   const [events, setEvents] = useState([]);
 
+  // ✔ FIXED: properly closed bracket
   useEffect(() => {
-    // Immediately invoked async function for fetching
     (async () => {
       try {
         const response = await fetch("https://api.sdsclub.pp.ua/getEvents");
@@ -38,7 +38,8 @@ function App() {
       } catch (error) {
         console.error("Error fetching events:", error);
       }
-    })();  
+    })();
+  }, []);   // ← missing earlier
 
   useEffect(() => {
     // Fetch projects
@@ -66,25 +67,27 @@ function App() {
 
   return (
     <Router>
-        <Navbar/>
-        <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/home" element={<Home/>}/>
-          <Route path="/about" element={<About/>}/>
-          <Route path="/contact" element={<Contact/>}/>
-          <Route path="/events" element={<Events/>}/>
-          <Route path="/team" element={<Team team={team}/>}/>
-          <Route path="/login" element={<LoginPage/>}/>
-          <Route path="/projects" element={<Projects projects={projects}/>}/>
-          <Route path="/request-project" element={<RequestProject/>}/>
-          
-          <Route path = "/dashboard" element={
-              <ProtectedRoute>
-                 <Dashboard/>
-              </ProtectedRoute>
+      <Navbar/>
+      <Routes>
+        <Route path="/" element={<Home/>}/>
+        <Route path="/home" element={<Home/>}/>
+        <Route path="/about" element={<About/>}/>
+        <Route path="/contact" element={<Contact/>}/>
+        <Route path="/events" element={<Events events={events}/>}/>
+        <Route path="/team" element={<Team team={team}/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/projects" element={<Projects projects={projects}/>}/>
+        <Route path="/request-project" element={<RequestProject/>}/>
+        
+        <Route 
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard/>
+            </ProtectedRoute>
           }
-          />
-          <Route path="/register" element={<RegisterPage />} />
+        />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
 
       <Footer />

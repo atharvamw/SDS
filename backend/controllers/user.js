@@ -2,6 +2,8 @@ import {createUser, findUser} from "../models/user.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+const saltRounds = 10;
+
 export async function handleLogin(req,res)
 {
     const data = req.body;
@@ -60,7 +62,7 @@ export async function handleLogout (req, res)
         res.cookie("token", "", {
             httpOnly: true,
             expires: new Date(0),
-            samesite: "strict",
+            sameSite: "strict",
             secure: true
         })
     
