@@ -1,10 +1,10 @@
-# 🚀 SDS Club Website (COEP Tech)
+# SDS Club Website (COEP Tech)
 
 A modern full-stack web application for the **Software Development Society (SDS)** of **COEP Technological University**, designed to showcase SDS events, projects, team members and manage project requests from students & faculty.
 
 ---
 
-## 📌 Features
+## Features
 
 ✅ Modern UI — **React + TailwindCSS**  
 ✅ **Admin Dashboard** (JWT + Cookie auth)  
@@ -16,7 +16,7 @@ A modern full-stack web application for the **Software Development Society (SDS)
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 - React
@@ -35,7 +35,7 @@ A modern full-stack web application for the **Software Development Society (SDS)
 
 ---
 
-## 📂 Folder Structure
+## Folder Structure
 ```
 /backend
  ┣ models/
@@ -69,7 +69,7 @@ A modern full-stack web application for the **Software Development Society (SDS)
     cd ../frontend
     npm install
     ```
-## Environment Variables 🔑
+## Environment Variables
 
 Create a `.env` file in the **`/backend`** directory:
 
@@ -80,7 +80,7 @@ JWT_SECRET=yourStrongSecretKey
 ADMIN_MAIL=yourAdmin@gmail.com
 ADMIN_MAIL_PASS=yourAppPassword # Google App Password (16 characters)
 ```
-## ▶️ Running the App
+## Running the App
 #### Backend
 ```bash
 cd backend
@@ -91,7 +91,7 @@ npm run dev
 cd frontend
 npm run dev
 ```
-## ✨ Admin Workflow
+## Admin Workflow
 | Action               | Trigger                                             |
 | -------------------- | --------------------------------------------------- |
 | User submits project | Request saved in DB & mail sent to applicant        |
