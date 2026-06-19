@@ -6,13 +6,13 @@ A modern full-stack web application for the **Software Development Society (SDS)
 
 ## Features
 
-✅ Modern UI — **React + TailwindCSS**  
-✅ **Admin Dashboard** (JWT + Cookie auth)  
-✅ **Project Request System** (Submit → Approve/Reject)  
-✅ Email notifications using **Nodemailer**  
-✅ MongoDB Atlas cloud database  
-✅ Responsive and mobile-friendly UI  
-✅ Secure routes & form handling  
+Modern UI — **React + TailwindCSS**  
+**Admin Dashboard** (JWT + Cookie auth)  
+**Project Request System** (Submit → Approve/Reject)  
+Email notifications using **Nodemailer**  
+MongoDB Atlas cloud database  
+Responsive and mobile-friendly UI  
+Secure routes & form handling  
 
 ---
 
